@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { Menu } from "lucide-react"
+import { Menu, MapPin } from "lucide-react"
 import { Button } from "./ui/button"
 import { MapView } from "./map-view"
 import { SearchBar } from "./search-bar"
@@ -195,7 +195,15 @@ export function TravelGuide() {
       {/* Header with search (fijo y fino) */}
       <header className="fixed top-0 left-0 w-full z-50 p-1 bg-black/90 backdrop-blur-sm border-b border-gray-800 h-12 flex items-center">
         <div className="w-full px-4 flex justify-between items-center">
-          <h1 className="text-xl font-bold bg-gradient-to-r from-blue-400 to-white bg-clip-text text-transparent">YourDayIn</h1>
+          <div className="flex items-center space-x-2">
+            <MapPin className="h-6 w-6 text-blue-400" />
+            <button 
+              onClick={() => router.push('/')}
+              className="text-xl font-bold bg-gradient-to-r from-blue-400 to-white bg-clip-text text-transparent hover:from-blue-300 hover:to-gray-200 transition-colors duration-200 cursor-pointer"
+            >
+              YourDayIn
+            </button>
+          </div>
           <SearchBar onSearch={handleSearch} isLoading={isLoading} />
           <Button 
             variant="ghost" 

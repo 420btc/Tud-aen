@@ -95,7 +95,8 @@ function Hero() {
             </h1>
 
             <p className="text-lg md:text-xl leading-relaxed tracking-tight bg-gradient-to-r from-blue-300 to-white/90 bg-clip-text text-transparent max-w-2xl text-center">
-              Explora los mejores lugares para visitar y descubre la belleza de la naturaleza o la cultura de un lugar dejandote llevar por el Agente IA especializado en turismo.
+              Explora los 5 mejores lugares para visitar y descubre la belleza de la naturaleza o la cultura dejandote llevar por el Agente IA especializado
+              en la mejor ruta.
             </p>
           </div>
           <div className="flex flex-row gap-3">
