@@ -191,31 +191,28 @@ export function TravelGuide() {
   }
 
   return (
-    <div className="relative min-h-screen bg-black text-white">
-      {/* Header with search */}
-      <header className="w-full p-3 bg-black/90 backdrop-blur-sm border-b border-gray-800">
-        <div className="max-w-4xl mx-auto">
-          <div className="flex justify-between items-center mb-2">
-            <h1 className="text-2xl font-bold text-white">TuDíaEn</h1>
-            <Button 
-              variant="ghost" 
-              size="sm"
-              className="text-white hover:bg-gray-800 h-8 w-8 p-0"
-              onClick={handleMenuClick}
-              aria-label="Menú principal"
-            >
-              <Menu className="h-4 w-4" />
-            </Button>
-          </div>
-          <div className="mb-1">
+    <div className="relative bg-black text-white">
+      {/* Header with search (fijo y fino) */}
+      <header className="fixed top-0 left-0 w-full z-50 p-1 bg-black/90 backdrop-blur-sm border-b border-gray-800 h-12 flex items-center">
+        <div className="max-w-4xl mx-auto w-full flex justify-between items-center">
+          <h1 className="text-lg font-bold text-white pl-2">TuDíaEn</h1>
+          <div className="flex-1 flex justify-center items-center">
             <SearchBar onSearch={handleSearch} isLoading={isLoading} />
           </div>
-          {error && <div className="text-xs p-2 bg-red-900/50 border border-red-700 text-red-100 rounded">{error}</div>}
+          <Button 
+            variant="ghost" 
+            size="sm"
+            className="text-white hover:bg-gray-800 h-8 w-8 p-0"
+            onClick={handleMenuClick}
+            aria-label="Menú principal"
+          >
+            <Menu className="h-4 w-4" />
+          </Button>
         </div>
       </header>
 
       {/* Map section (ocupa toda la pantalla menos el header) */}
-      <div className="relative w-full h-[calc(100vh-56px)]">
+      <div className="relative w-full h-screen bg-black">
         <MapView coordinates={coordinates} recommendations={recommendations || []} routeInfo={routeInfo} />
 
         {/* Recommendations overlay */}
