@@ -89,19 +89,19 @@ function Hero() {
               Encuentra los destinos más increíbles y planifica tu próxima aventura.
             </p>
             
-            <div className="flex flex-col sm:flex-row gap-6 justify-center mt-8">
-              <Link href="/game" className="relative group">
-                <div className="absolute -inset-1 bg-gradient-to-r from-blue-400 to-blue-600 rounded-full blur opacity-70 group-hover:opacity-90 transition-all duration-300 group-hover:-inset-2"></div>
+            <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center mt-8 px-4 sm:px-0">
+              <Link href="/game" className="relative group w-full sm:w-auto">
+                <div className="absolute -inset-0.5 sm:-inset-1 bg-gradient-to-r from-blue-400 to-blue-600 rounded-full blur opacity-50 sm:opacity-70 group-hover:opacity-90 transition-all duration-300 group-hover:-inset-1 sm:group-hover:-inset-2"></div>
                 <Button 
                   size="lg" 
-                  className="relative bg-gradient-to-r from-blue-500 to-blue-700 text-white hover:from-blue-600 hover:to-blue-800 px-10 py-6 text-lg font-semibold transition-all duration-300 transform group-hover:scale-105 rounded-full shadow-lg shadow-blue-500/30 hover:shadow-xl hover:shadow-blue-500/40"
+                  className="relative w-full sm:w-auto bg-gradient-to-r from-blue-500 to-blue-700 text-white hover:from-blue-600 hover:to-blue-800 px-6 sm:px-10 py-4 sm:py-6 text-base sm:text-lg font-semibold transition-all duration-300 transform group-hover:scale-105 rounded-full shadow-lg shadow-blue-500/30 hover:shadow-xl hover:shadow-blue-500/40"
                 >
                   Explorar Ahora
                 </Button>
               </Link>
               <Button 
                 size="lg" 
-                className="bg-gradient-to-r from-red-500 to-pink-600 text-white hover:from-red-600 hover:to-pink-700 px-10 py-6 text-lg font-semibold transition-all duration-300 transform hover:scale-105 rounded-full shadow-lg hover:shadow-xl hover:shadow-red-500/20"
+                className="w-full sm:w-auto bg-gradient-to-r from-red-500 to-pink-600 text-white hover:from-red-600 hover:to-pink-700 px-6 sm:px-10 py-4 sm:py-6 text-base sm:text-lg font-semibold transition-all duration-300 transform hover:scale-105 rounded-full shadow-lg hover:shadow-xl hover:shadow-red-500/20"
               >
                 Registrarse
               </Button>
