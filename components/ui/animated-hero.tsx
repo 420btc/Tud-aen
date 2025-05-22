@@ -6,6 +6,7 @@ import { MoveRight, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { Globe } from "./globe";
+import Link from "next/link";
 
 function Hero() {
   const router = useRouter();
@@ -89,12 +90,14 @@ function Hero() {
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center mt-8">
-              <Button 
-                size="lg" 
-                className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-6 text-lg font-semibold transition-all duration-300 transform hover:scale-105"
-              >
-                Explorar Ahora
-              </Button>
+              <Link href="/game">
+                <Button 
+                  size="lg" 
+                  className="bg-gradient-to-r from-blue-600 to-blue-800 text-white hover:from-blue-700 hover:to-blue-900 px-8 py-6 text-lg font-semibold transition-all duration-300 transform hover:scale-105"
+                >
+                  Explorar Ahora
+                </Button>
+              </Link>
               <Button 
                 size="lg" 
                 className="bg-red-600 hover:bg-red-700 text-white px-8 py-6 text-lg font-semibold transition-all duration-300 transform hover:scale-105"
