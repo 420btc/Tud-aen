@@ -41,7 +41,7 @@ export function MainMenu() {
             {/* Logo */}
             <Link href="/" className="flex items-center space-x-2">
               <MapPin className="h-8 w-8 text-blue-400" />
-              <span className="text-xl font-bold text-white">TuDíaEn</span>
+              <span className="text-xl font-bold bg-gradient-to-r from-blue-400 to-white bg-clip-text text-transparent">YourDayIn</span>
             </Link>
 
             {/* Navegación para escritorio */}
@@ -50,7 +50,7 @@ export function MainMenu() {
                 <Link
                   key={item.name}
                   href={item.href}
-                  className="text-gray-300 hover:text-white transition-colors flex items-center"
+                  className="font-medium bg-gradient-to-r from-blue-400 to-white bg-clip-text text-transparent hover:from-blue-300 hover:to-gray-200 transition-colors duration-200 flex items-center"
                 >
                   {item.icon}
                   {item.name}
@@ -91,7 +91,7 @@ export function MainMenu() {
                   <Link
                     key={item.name}
                     href={item.href}
-                    className="text-gray-300 hover:text-white transition-colors flex items-center p-2 rounded hover:bg-gray-800"
+className="font-medium bg-gradient-to-r from-blue-400 to-white bg-clip-text text-transparent hover:from-blue-300 hover:to-gray-200 transition-colors duration-200 flex items-center p-2 rounded hover:bg-gray-800/50"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     {item.icon}

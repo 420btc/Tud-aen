@@ -23,14 +23,20 @@ export function SearchBar({ onSearch, isLoading }: SearchBarProps) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex w-full space-x-2">
-      <div className="relative flex-grow">
+    <form onSubmit={handleSubmit} className="flex items-center w-full max-w-md space-x-2">
+      <div className="relative flex-1">
         <Input
           type="text"
           placeholder="Busca un lugar (ej. Barcelona, España)"
           value={searchValue}
           onChange={(e) => setSearchValue(e.target.value)}
-          className="pr-10 border-gray-600 focus:border-blue-500 bg-black text-white placeholder-gray-400"
+          className="pr-10 rounded-2xl bg-black/30 backdrop-blur-sm text-white font-bold w-full placeholder:text-white/80 focus:outline-none focus:ring-0 transition-all duration-200 ease-in-out"
+          style={{
+            border: '2px solid transparent',
+            backgroundImage: 'linear-gradient(90deg, rgba(0,0,0,0.3), rgba(0,0,0,0.3)), linear-gradient(90deg, #60a5fa, #ffffff)',
+            backgroundOrigin: 'border-box',
+            backgroundClip: 'padding-box, border-box',
+          }}
         />
       </div>
       <Button type="submit" disabled={isLoading || !searchValue.trim()} className="bg-blue-600 hover:bg-blue-700">

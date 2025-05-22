@@ -194,11 +194,9 @@ export function TravelGuide() {
     <div className="relative bg-black text-white">
       {/* Header with search (fijo y fino) */}
       <header className="fixed top-0 left-0 w-full z-50 p-1 bg-black/90 backdrop-blur-sm border-b border-gray-800 h-12 flex items-center">
-        <div className="max-w-4xl mx-auto w-full flex justify-between items-center">
-          <h1 className="text-lg font-bold text-white pl-2">TuDíaEn</h1>
-          <div className="flex-1 flex justify-center items-center">
-            <SearchBar onSearch={handleSearch} isLoading={isLoading} />
-          </div>
+        <div className="w-full px-4 flex justify-between items-center">
+          <h1 className="text-xl font-bold bg-gradient-to-r from-blue-400 to-white bg-clip-text text-transparent">YourDayIn</h1>
+          <SearchBar onSearch={handleSearch} isLoading={isLoading} />
           <Button 
             variant="ghost" 
             size="sm"
