@@ -30,7 +30,7 @@ export function SearchBar({ onSearch, isLoading }: SearchBarProps) {
           placeholder="Busca un lugar (ej. Barcelona, España)"
           value={searchValue}
           onChange={(e) => setSearchValue(e.target.value)}
-          className="pr-10 border-blue-200 focus:border-blue-500"
+          className="pr-10 border-gray-600 focus:border-blue-500 bg-black text-white placeholder-gray-400"
         />
       </div>
       <Button type="submit" disabled={isLoading || !searchValue.trim()} className="bg-blue-600 hover:bg-blue-700">
