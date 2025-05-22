@@ -191,45 +191,65 @@ export function TravelGuide() {
   }
 
   return (
-    <div className="relative h-screen">
-      <div className="absolute inset-0 flex flex-col md:flex-row h-full">
-        <div className="w-full md:w-1/3 p-6 overflow-y-auto bg-black/90 backdrop-blur-sm border-r border-gray-800 text-white">
-          <div className="flex justify-between items-start mb-6">
-            <div>
-              <h1 className="text-3xl font-extrabold text-white mb-1">TuDíaEn</h1>
-              <p className="text-gray-300">Descubre los mejores lugares para visitar</p>
-            </div>
+    <div className="relative min-h-screen bg-black text-white">
+      {/* Header with search */}
+      <header className="w-full p-3 bg-black/90 backdrop-blur-sm border-b border-gray-800">
+        <div className="max-w-4xl mx-auto">
+          <div className="flex justify-between items-center mb-2">
+            <h1 className="text-2xl font-bold text-white">TuDíaEn</h1>
             <Button 
               variant="ghost" 
-              size="icon" 
-              className="text-white hover:bg-gray-800"
+              size="sm"
+              className="text-white hover:bg-gray-800 h-8 w-8 p-0"
               onClick={handleMenuClick}
               aria-label="Menú principal"
             >
-              <Menu className="h-6 w-6" />
+              <Menu className="h-4 w-4" />
             </Button>
           </div>
-          <div className="mb-6">
+          <div className="mb-1">
             <SearchBar onSearch={handleSearch} isLoading={isLoading} />
           </div>
-
-          {error && <div className="mt-4 p-3 bg-red-100 border border-red-300 text-red-700 rounded">{error}</div>}
-
-          {recommendations && recommendations.length > 0 && (
-            <>
-              <h2 className="text-xl font-semibold mt-6 mb-4 text-white">Lugares recomendados en {location}</h2>
-              <RecommendationsList recommendations={recommendations} />
-
-              {routeInfo && routeInfo.routes && routeInfo.routes.length > 0 && (
-                <RouteInfo routeInfo={routeInfo} recommendations={recommendations} />
-              )}
-            </>
-          )}
+          {error && <div className="text-xs p-2 bg-red-900/50 border border-red-700 text-red-100 rounded">{error}</div>}
         </div>
+      </header>
 
-        <div className="w-full md:w-2/3 h-[50vh] md:h-full">
-          <MapView coordinates={coordinates} recommendations={recommendations || []} routeInfo={routeInfo} />
-        </div>
+      {/* Map section (ocupa toda la pantalla menos el header) */}
+      <div className="relative w-full h-[calc(100vh-56px)]">
+        <MapView coordinates={coordinates} recommendations={recommendations || []} routeInfo={routeInfo} />
+
+        {/* Recommendations overlay */}
+        {(recommendations && recommendations.length > 0) && (
+          <div className="absolute left-1/2 bottom-6 transform -translate-x-1/2 z-20 w-full flex flex-col items-center pointer-events-none">
+            <h2 className="text-lg font-bold text-white mb-2 text-center pointer-events-auto bg-black/60 rounded px-4 py-1">
+              Lugares recomendados en {location}
+            </h2>
+            <div className="flex flex-nowrap overflow-x-auto gap-4 pb-2 scrollbar-hide pointer-events-auto max-w-3xl mx-auto">
+              {recommendations.map((rec, index) => (
+                <div
+                  key={index}
+                  className="flex-shrink-0 w-56 h-48 bg-gray-800 bg-opacity-95 rounded-lg overflow-hidden shadow-lg pointer-events-auto flex flex-col justify-between"
+                >
+                  <div className="p-3 flex flex-col justify-between h-full">
+                    <h3 className="font-bold text-white mb-1 text-base truncate">{rec.name}</h3>
+                    <p className="text-gray-300 text-xs mb-1 line-clamp-2">{rec.description}</p>
+                    <p className="text-gray-400 text-xs truncate">📍 {rec.address}</p>
+                    <p className="text-yellow-400 text-xs mt-1">⏱️ {rec.recommendedTime}</p>
+                    <p className="text-blue-300 text-xs mt-1 italic line-clamp-2">💡 {rec.tips}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+        {/* Route info panel flotante */}
+        {routeInfo && routeInfo.routes && routeInfo.routes.length > 0 && (
+          <div className="fixed bottom-0 right-0 z-50 w-80 max-h-96 bg-gray-900 bg-opacity-95 rounded-tl-lg shadow-lg overflow-y-auto pointer-events-auto">
+            <div className="p-4">
+              <RouteInfo routeInfo={routeInfo} recommendations={recommendations} />
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )
