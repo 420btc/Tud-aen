@@ -52,70 +52,69 @@ function Hero() {
   };
 
   return (
-    <div className="w-full relative bg-black min-h-screen overflow-hidden">
-      {/* Fondo con globo terráqueo */}
-      <div className="absolute inset-0 z-0">
+    <section className="relative w-full overflow-hidden bg-black">
+      {/* Globe container with overlay content */}
+      <div className="relative w-full flex items-center justify-center" style={{ height: '50vh', minHeight: '600px' }}>
+        {/* Globe background */}
         <div className="absolute inset-0 w-full h-full">
           <Globe className="absolute inset-0 w-full h-full opacity-90" />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/50 to-black/80"></div>
         </div>
-        <div className="absolute inset-0 bg-gradient-to-b from-black/90 via-black/70 to-black/90"></div>
-      </div>
-      
-      {/* Contenido */}
-      <div className="container mx-auto relative z-10 h-full">
-        <div className="flex gap-8 py-20 lg:py-40 items-center justify-center flex-col">
-          <div className="flex gap-4 flex-col">
-            <h1 className="text-5xl md:text-7xl max-w-2xl tracking-tighter text-center font-regular bg-gradient-to-r from-blue-400 to-white bg-clip-text text-transparent">
-              Explora lugares
-              <span className="relative flex w-full justify-center overflow-hidden text-center md:pb-4 md:pt-1">
-                &nbsp;
+        
+        {/* Content overlay */}
+        <div className="relative z-10 w-full max-w-6xl mx-auto px-4 text-center">
+          <div className="space-y-6">
+            <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight">
+              <span className="block bg-gradient-to-r from-blue-300 to-white bg-clip-text text-transparent">
+                Explora lugares
+              </span>
+              <span className="relative flex w-full justify-center overflow-hidden h-24 md:h-32 items-center">
                 {titles.map((title, index) => (
                   <motion.span
                     key={index}
-                    className="absolute font-semibold bg-gradient-to-r from-blue-400 to-white bg-clip-text text-transparent"
-                    initial={{ opacity: 0, y: "-100" }}
-                    transition={{ type: "spring", stiffness: 50 }}
-                    animate={
-                      titleNumber === index
-                        ? {
-                            y: 0,
-                            opacity: 1,
-                          }
-                        : {
-                            y: titleNumber > index ? -150 : 150,
-                            opacity: 0,
-                          }
-                    }
+                    className="absolute font-bold bg-gradient-to-r from-blue-300 to-white bg-clip-text text-transparent text-4xl md:text-6xl lg:text-7xl"
+                    initial={{ opacity: 0, y: "-100%" }}
+                    transition={{ type: "spring", stiffness: 50, damping: 15 }}
+                    animate={{
+                      y: titleNumber === index ? 0 : (titleNumber > index ? "-100%" : "100%"),
+                      opacity: titleNumber === index ? 1 : 0
+                    }}
                   >
                     {title}
                   </motion.span>
                 ))}
               </span>
             </h1>
-
-            <p className="text-lg md:text-xl leading-relaxed tracking-tight bg-gradient-to-r from-blue-300 to-white/90 bg-clip-text text-transparent max-w-2xl text-center">
-              Explora los 5 mejores lugares para visitar y descubre la belleza de la naturaleza o la cultura dejandote llevar por el Agente IA especializado
-              en la mejor ruta.
+            
+            <p className="text-xl md:text-2xl text-gray-200 max-w-3xl mx-auto">
+              Encuentra los destinos más increíbles y planifica tu próxima aventura.
             </p>
-          </div>
-          <div className="flex flex-row gap-3">
-            <Button 
-              size="lg" 
-              className="gap-4 bg-blue-600 hover:bg-blue-700 text-white"
-              onClick={handleSearchClick}
-            >
-              Explorar Ahora <MapPin className="w-4 h-4" />
-            </Button>
-            <Button 
-              size="lg" 
-              className="gap-4 bg-red-600 hover:bg-red-700 text-white"
-            >
-              Registrarse <MoveRight className="w-4 h-4" />
-            </Button>
+            
+            <div className="flex flex-col sm:flex-row gap-4 justify-center pt-6">
+              <Button 
+                size="lg" 
+                className="gap-3 bg-blue-600 hover:bg-blue-700 text-white text-lg px-8 py-6 transform transition-all hover:scale-105"
+                onClick={handleSearchClick}
+              >
+                Explorar Ahora <MapPin className="w-5 h-5" />
+              </Button>
+              <Button 
+                size="lg" 
+                variant="outline"
+                className="gap-3 text-white hover:bg-white/10 text-lg px-8 py-6 border-white/30 transform transition-all hover:scale-105"
+              >
+                Ver ofertas <MoveRight className="w-5 h-5" />
+              </Button>
+            </div>
+            
+            <p className="text-sm text-gray-400 mt-8 max-w-2xl mx-auto">
+              Explora los mejores lugares para visitar y descubre la belleza de la naturaleza y la cultura 
+              con nuestro Agente IA especializado en rutas personalizadas.
+            </p>
           </div>
         </div>
       </div>
-    </div>
+    </section>
   );
 }
 

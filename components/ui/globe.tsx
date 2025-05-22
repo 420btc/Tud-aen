@@ -43,23 +43,44 @@ export function Globe({
   let phi = 0
   let width = 0
   const canvasRef = useRef<HTMLCanvasElement>(null)
-  const pointerInteracting = useRef(null)
+  const pointerInteracting = useRef<number | null>(null)
   const pointerInteractionMovement = useRef(0)
   const [r, setR] = useState(0)
 
-  const updatePointerInteraction = (value: any) => {
+  const updatePointerInteraction = (value: number | null, clientX?: number) => {
     pointerInteracting.current = value
     if (canvasRef.current) {
-      canvasRef.current.style.cursor = value ? "grabbing" : "grab"
+      canvasRef.current.style.cursor = value !== null ? "grabbing" : "grab"
+    }
+    if (clientX !== undefined) {
+      updateMovement(clientX)
     }
   }
 
-  const updateMovement = (clientX: any) => {
+  const updateMovement = (clientX: number) => {
     if (pointerInteracting.current !== null) {
       const delta = clientX - pointerInteracting.current
       pointerInteractionMovement.current = delta
       setR(delta / 200)
     }
+  }
+
+  const handlePointerDown = (e: React.PointerEvent) => {
+    updatePointerInteraction(e.clientX, e.clientX)
+    document.addEventListener('pointermove', handlePointerMove)
+    document.addEventListener('pointerup', handlePointerUp)
+  }
+
+  const handlePointerMove = (e: PointerEvent) => {
+    if (pointerInteracting.current !== null) {
+      updateMovement(e.clientX)
+    }
+  }
+
+  const handlePointerUp = () => {
+    updatePointerInteraction(null)
+    document.removeEventListener('pointermove', handlePointerMove)
+    document.removeEventListener('pointerup', handlePointerUp)
   }
 
   const onRender = useCallback(
@@ -89,16 +110,50 @@ export function Globe({
       onRender,
     })
 
-    setTimeout(() => (canvasRef.current!.style.opacity = "1"))
+    const canvas = canvasRef.current
+    if (canvas) {
+      canvas.style.cursor = 'grab'
+      canvas.style.opacity = '1'
+      
+      // Add touch support
+      const handleTouchStart = (e: TouchEvent) => {
+        e.preventDefault()
+        updatePointerInteraction(e.touches[0].clientX, e.touches[0].clientX)
+      }
+      
+      const handleTouchMove = (e: TouchEvent) => {
+        e.preventDefault()
+        if (pointerInteracting.current !== null) {
+          updateMovement(e.touches[0].clientX)
+        }
+      }
+      
+      const handleTouchEnd = () => {
+        updatePointerInteraction(null)
+      }
+      
+      canvas.addEventListener('touchstart', handleTouchStart, { passive: false })
+      canvas.addEventListener('touchmove', handleTouchMove, { passive: false })
+      canvas.addEventListener('touchend', handleTouchEnd)
+      
+      return () => {
+        globe.destroy()
+        canvas.removeEventListener('touchstart', handleTouchStart)
+        canvas.removeEventListener('touchmove', handleTouchMove)
+        canvas.removeEventListener('touchend', handleTouchEnd)
+      }
+    }
+    
     return () => globe.destroy()
   }, [])
 
   return (
     <div
       className={cn(
-        "absolute inset-0 mx-auto aspect-[1/1] w-full max-w-[600px]",
+        "absolute inset-0 mx-auto aspect-[1/1] w-full max-w-[600px] cursor-grab active:cursor-grabbing",
         className,
       )}
+      onPointerDown={handlePointerDown}
     >
       <canvas
         className={cn(
