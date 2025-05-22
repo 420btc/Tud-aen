@@ -217,7 +217,7 @@ export function TravelGuide() {
 
           {recommendations && recommendations.length > 0 && (
             <>
-              <h2 className="text-xl font-semibold mt-6 mb-4 text-blue-800">Lugares recomendados en {location}</h2>
+              <h2 className="text-xl font-semibold mt-6 mb-4 text-white">Lugares recomendados en {location}</h2>
               <RecommendationsList recommendations={recommendations} />
 
               {routeInfo && routeInfo.routes && routeInfo.routes.length > 0 && (
