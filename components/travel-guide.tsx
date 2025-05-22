@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { Menu, MapPin, Search } from "lucide-react"
+import { Menu, MapPin, Search, Clock } from "lucide-react"
 import { Button } from "./ui/button"
 import { MapView } from "./map-view"
 import { SearchBar } from "./search-bar"
@@ -314,13 +314,57 @@ export function TravelGuide() {
           </div>
         )}
         
-        {/* Panel de ruta */}
+        {/* Panel de ruta y recomendaciones */}
         {routeInfo && routeInfo.routes && routeInfo.routes.length > 0 && (
-          <div className="fixed bottom-4 right-4 z-30 w-80 h-80">
-            <RouteInfo routeInfo={routeInfo} recommendations={recommendations} />
-          </div>
+          <>
+            {/* Versión móvil - Carrusel */}
+            <div className="md:hidden fixed bottom-4 left-0 right-0 z-30 px-4">
+              <div className="flex overflow-x-auto pb-4 space-x-4 snap-x snap-mandatory hide-scrollbar">
+                {/* Tarjeta de resumen de ruta */}
+                <div className="flex-shrink-0 w-[85%] sm:w-72 snap-start">
+                  <RouteInfo routeInfo={routeInfo} recommendations={recommendations} />
+                </div>
+                
+                {/* Tarjetas de recomendaciones */}
+                {recommendations.map((rec, index) => (
+                  <div key={index} className="flex-shrink-0 w-[85%] sm:w-72 snap-start">
+                    <div className="bg-gray-900/90 backdrop-blur-sm border border-gray-700 rounded-lg p-4 h-full">
+                      <h3 className="text-white font-medium mb-2">{rec.name}</h3>
+                      <p className="text-sm text-gray-300 mb-2">{rec.description}</p>
+                      <div className="flex items-center text-xs text-blue-400">
+                        <Clock className="h-3 w-3 mr-1" />
+                        <span>{rec.recommendedTime}</span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            
+            {/* Versión escritorio - Tarjeta fija */}
+            <div className="hidden md:block fixed bottom-4 right-4 z-30 w-80 h-auto max-h-[70vh] overflow-y-auto">
+              <RouteInfo routeInfo={routeInfo} recommendations={recommendations} />
+            </div>
+          </>
         )}
       </div>
+      
+      {/* Estilos para el carrusel móvil */}
+      <style jsx global>{`
+        .hide-scrollbar::-webkit-scrollbar {
+          display: none;
+        }
+        .hide-scrollbar {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+        .snap-x {
+          scroll-snap-type: x mandatory;
+        }
+        .snap-start {
+          scroll-snap-align: start;
+        }
+      `}</style>
     </div>
   )
 }
