@@ -2,12 +2,13 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { Menu, MapPin, Search, Clock } from "lucide-react"
+import { Menu, MapPin, Search, Clock, Loader2 } from "lucide-react"
 import { Button } from "./ui/button"
 import { MapView } from "./map-view"
 import { SearchBar } from "./search-bar"
 import { RecommendationsList } from "./recommendations-list"
 import { RouteInfo } from "./route-info"
+import { LoadingModal } from "./ui/loading-modal"
 import type { Recommendation } from "@/lib/types"
 
 export function TravelGuide() {
@@ -20,9 +21,21 @@ export function TravelGuide() {
   const [selectedRecommendation, setSelectedRecommendation] = useState<Recommendation | null>(null)
   const [showRecommendations, setShowRecommendations] = useState(false)
   const [showMobileSearch, setShowMobileSearch] = useState(false)
+  const [isGenerating, setIsGenerating] = useState(false)
+  const [loadingLogs, setLoadingLogs] = useState<string[]>([])
+  const [loadingProgress, setLoadingProgress] = useState(0)
+  const [abortController, setAbortController] = useState<AbortController | null>(null)
 
   // Function to retry API calls with exponential backoff
   const fetchWithRetry = async (url: string, options: RequestInit, retries = 3, delay = 1000) => {
+    // Add the abort signal to the request options
+    const controller = new AbortController()
+    const signal = controller.signal
+    
+    // If there's a global abort controller, use its signal
+    if (abortController) {
+      signal.addEventListener('abort', () => controller.abort())
+    }
     for (let attempt = 0; attempt < retries; attempt++) {
       try {
         const response = await fetch(url, options)
@@ -51,17 +64,47 @@ export function TravelGuide() {
   };
 
   // Update the handleSearch function to include all 5 points in the route
+  const addLoadingLog = (message: string) => {
+    setLoadingLogs(prev => [...prev, message])
+  }
+
   const handleSearch = async (searchLocation: string) => {
-    setSelectedRecommendation(null); // Reset selected recommendation on new search
+    // Cancel any ongoing search
+    if (abortController) {
+      abortController.abort('Nueva búsqueda iniciada')
+      addLoadingLog('⚠️ Cancelando búsqueda anterior...')
+    }
+    
+    // Create new AbortController for this search
+    const controller = new AbortController()
+    setAbortController(controller)
+    
+    setSelectedRecommendation(null) // Reset selected recommendation on new search
     setIsLoading(true)
+    setIsGenerating(true)
+    setLoadingLogs([])
+    setLoadingProgress(0)
     setError(null)
     setLocation(searchLocation)
     setRecommendations([])
     setRouteInfo(null)
+    
+    // Clear any existing timeout
+    if ((window as any).loadingTimeout) {
+      clearTimeout((window as any).loadingTimeout)
+    }
+    addLoadingLog(`🔍 Buscando ubicación: ${searchLocation}...`)
 
     try {
+      // Check if the search was aborted
+      if (abortController?.signal.aborted) {
+        addLoadingLog('❌ Búsqueda cancelada')
+        return
+      }
+
       // 1. Get coordinates from location name using Mapbox Geocoding API
-      console.log("Geocoding search location:", searchLocation)
+      addLoadingLog(`🔍 Buscando coordenadas para: ${searchLocation}...`)
+      setLoadingProgress(10)
 
       const geocodingResponse = await fetchWithRetry(
         `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(searchLocation)}.json?access_token=${
@@ -84,9 +127,14 @@ export function TravelGuide() {
         const [lng, lat] = geocodingData.features[0].center
         setCoordinates([lng, lat])
         console.log(`Main location coordinates: [${lng}, ${lat}]`)
+        addLoadingLog(`📍 Coordenadas obtenidas: ${lat.toFixed(6)}, ${lng.toFixed(6)}`)
+        addLoadingLog("✅ Ubicación encontrada en el mapa")
+        setLoadingProgress(30)
 
         // 2. Get recommendations from our API
-        console.log("Fetching recommendations for:", searchLocation)
+        addLoadingLog("🔍 Buscando lugares recomendados cercanos...")
+        addLoadingLog(`🌍 Radio de búsqueda: 5 km`)
+        addLoadingLog(`📌 Puntos de interés: Atracciones turísticas, restaurantes, miradores`)
         const recommendationsResponse = await fetch("/api/recommendations", {
           method: "POST",
           headers: {
@@ -107,14 +155,35 @@ export function TravelGuide() {
 
         // Add null check for recommendations
         if (recommendationsData && recommendationsData.recommendations) {
-          setRecommendations(recommendationsData.recommendations)
-          console.log("Received recommendations:", recommendationsData.recommendations.length)
+          const validRecommendations = recommendationsData.recommendations.filter(
+            (rec: Recommendation) => rec.coordinates && rec.coordinates.length === 2
+          )
+          setRecommendations(validRecommendations)
+          console.log("Received recommendations:", validRecommendations.length)
+          setLoadingProgress(60)
+          
+          // Log each recommendation with coordinates
+          addLoadingLog(`✅ ${validRecommendations.length} lugares encontrados:`)
+          validRecommendations.forEach((rec: Recommendation) => {
+            if (rec.coordinates) {
+              const [lng, lat] = rec.coordinates;
+              addLoadingLog(`📍 ${rec.name} (${rec.recommendedTime})`)
+              addLoadingLog(`   → Coordenadas: ${lat.toFixed(6)}, ${lng.toFixed(6)}`)
+              if (rec.description) {
+                addLoadingLog(`   → ${rec.description}`)
+              }
+            } else {
+              addLoadingLog(`⚠️ ${rec.name} (Coordenadas no disponibles)`)
+            }
+          })
 
           // 3. Get route information if we have recommendations
-          if (recommendationsData.recommendations.length > 1) {
+          if (validRecommendations.length > 0) {
+            addLoadingLog("🛣️ Calculando ruta óptima entre los lugares...")
+            setLoadingProgress(70)
             try {
               // Extract coordinates for the Mapbox Directions API
-              const waypoints = recommendationsData.recommendations
+              const waypoints = validRecommendations
                 .map((rec: Recommendation) => {
                   if (!rec.coordinates) {
                     console.error("Missing coordinates for recommendation:", rec)
@@ -141,6 +210,9 @@ export function TravelGuide() {
               // Call the Mapbox Directions API with optimized parameters
               console.log("Fetching route for waypoints")
               const routeUrl = `https://api.mapbox.com/directions/v5/mapbox/driving/${waypointsString}?geometries=geojson&overview=full&steps=true&access_token=${process.env.NEXT_PUBLIC_MAPBOX_TOKEN}`
+              
+              addLoadingLog("🛣 Calculando ruta óptima entre los puntos...")
+              addLoadingLog(`📍 Puntos de ruta: ${waypoints.length} paradas`)
 
               // Use the retry function for the directions API
               const routeResponse = await fetchWithRetry(routeUrl, {
@@ -164,6 +236,13 @@ export function TravelGuide() {
 
               console.log("Route data received:", routeData)
               setRouteInfo(routeData)
+              setLoadingProgress(90)
+              const distance = (routeData.routes[0].distance / 1000).toFixed(1)
+              const duration = Math.round(routeData.routes[0].duration / 60)
+              addLoadingLog(`✅ Ruta calculada exitosamente`)
+              addLoadingLog(`📏 Distancia total: ${distance} km`)
+              addLoadingLog(`⏱ Tiempo estimado: ${duration} minutos`)
+              addLoadingLog("🚀 Cargando mapa con la ruta...")
             } catch (routeError) {
               console.error("Error fetching route:", routeError)
               const errorMessage = routeError instanceof Error ? routeError.message : 'Error desconocido al crear la ruta'
@@ -183,13 +262,29 @@ export function TravelGuide() {
         setError("No se pudo encontrar la ubicación especificada")
       }
     } catch (error) {
-      console.error("Error fetching data:", error)
-      setRecommendations([])
-      setRouteInfo(null)
-      const errorMessage = error instanceof Error ? error.message : 'Error desconocido'
-      setError(`Error: ${errorMessage}`)
+      // Don't show error if the search was aborted
+      if (!(error instanceof DOMException && error.name === 'AbortError')) {
+        console.error("Error fetching data:", error)
+        setRecommendations([])
+        setRouteInfo(null)
+        const errorMessage = error instanceof Error ? error.message : 'Error desconocido'
+        setError(`Error: ${errorMessage}`)
+      } else {
+        addLoadingLog('🔄 Nueva búsqueda iniciada')
+      }
     } finally {
-      setIsLoading(false)
+      // Only update loading states if this wasn't an aborted request
+      if (!abortController?.signal.aborted) {
+        setIsLoading(false)
+        
+        // Set loading to 100% and schedule modal close after 3 seconds
+        setLoadingProgress(100);
+        
+        // Close the loading modal after 3 seconds
+        (window as any).loadingTimeout = setTimeout(() => {
+          setIsGenerating(false);
+        }, 3000);
+      }
     }
   }
 
@@ -201,6 +296,16 @@ export function TravelGuide() {
 
   return (
     <div className="relative bg-black text-white">
+      {/* Loading Modal */}
+      {isGenerating && (
+        <LoadingModal 
+          isOpen={isGenerating} 
+          logs={loadingLogs} 
+          progress={loadingProgress} 
+          onClose={() => setIsGenerating(false)}
+        />
+      )}
+      
       {/* Header transparente */}
       <header className="fixed top-0 left-0 w-full z-50 p-1 bg-black/20 backdrop-blur-sm border-b border-blue-400/20 h-16 flex items-center">
         <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-between">
