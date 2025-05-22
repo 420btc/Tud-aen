@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { Menu, MapPin } from "lucide-react"
+import { Menu, MapPin, Search } from "lucide-react"
 import { Button } from "./ui/button"
 import { MapView } from "./map-view"
 import { SearchBar } from "./search-bar"
@@ -200,28 +200,50 @@ export function TravelGuide() {
 
   return (
     <div className="relative bg-black text-white">
-      {/* Header with search (fijo y fino) */}
-      <header className="fixed top-0 left-0 w-full z-50 p-1 bg-gradient-to-r from-blue-600/40 via-purple-600/40 to-blue-600/40 backdrop-blur-md border-b border-blue-400/30 h-12 flex items-center">
-        <div className="w-full px-4 flex justify-between items-center">
-          <div className="flex items-center space-x-2">
-            <MapPin className="h-6 w-6 text-blue-400" />
-            <button 
-              onClick={() => router.push('/')}
-              className="text-xl font-bold bg-gradient-to-r from-blue-400 to-white bg-clip-text text-transparent hover:from-blue-300 hover:to-gray-200 transition-colors duration-200 cursor-pointer"
-            >
-              YourDayIn
-            </button>
+      {/* Header transparente */}
+      <header className="fixed top-0 left-0 w-full z-50 p-1 bg-black/20 backdrop-blur-sm border-b border-blue-400/20 h-16 flex items-center">
+        <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-between">
+          {/* Contenido izquierdo (logo) */}
+          <div className="flex items-center">
+            <div className="flex items-center space-x-2 sm:space-x-3">
+              <MapPin className="h-6 w-6 sm:h-7 sm:w-7 text-blue-400" />
+              <button 
+                onClick={() => router.push('/')}
+                className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-blue-400 to-white bg-clip-text text-transparent hover:from-blue-300 hover:to-gray-200 transition-colors duration-200 cursor-pointer"
+              >
+                YourDayIn
+              </button>
+            </div>
+            
+            {/* Barra de búsqueda - Oculto en móviles */}
+            <div className="hidden md:block ml-4 sm:ml-6 w-64 lg:w-96">
+              <SearchBar onSearch={handleSearch} isLoading={isLoading} />
+            </div>
           </div>
-          <SearchBar onSearch={handleSearch} isLoading={isLoading} />
-          <Button 
-            variant="ghost" 
-            size="sm"
-            className="text-white hover:bg-gray-800 h-8 w-8 p-0"
-            onClick={handleMenuClick}
-            aria-label="Menú principal"
-          >
-            <Menu className="h-4 w-4" />
-          </Button>
+          
+          {/* Botón de menú con texto */}
+          <div className="flex items-center space-x-2 sm:space-x-3">
+            {/* Botón de búsqueda solo en móvil */}
+            <button 
+              className="md:hidden text-white hover:bg-white/10 p-2 rounded-full transition-colors"
+              onClick={() => { /* Aquí puedes añadir la lógica para mostrar la barra de búsqueda en móvil */ }}
+              aria-label="Buscar"
+            >
+              <Search className="h-5 w-5" />
+            </button>
+            
+            {/* Botón de menú con texto */}
+            <Button 
+              variant="ghost" 
+              size="sm"
+              className="text-white hover:bg-white/10 h-10 px-3 sm:px-4 rounded-full transition-colors"
+              onClick={handleMenuClick}
+              aria-label="Menú principal"
+            >
+              <span className="hidden sm:inline-block mr-2">Menú</span>
+              <Menu className="h-5 w-5" />
+            </Button>
+          </div>
         </div>
       </header>
 
