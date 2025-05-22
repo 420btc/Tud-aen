@@ -148,11 +148,18 @@ export function MapView({ coordinates, recommendations, routeInfo }: MapViewProp
         const marker = new mapboxgl.Marker(el)
           .setLngLat(rec.coordinates)
           .setPopup(
-            new mapboxgl.Popup({ offset: 25 }).setHTML(
-              `<h3 style="font-weight: bold; margin-bottom: 5px;">${rec.name}</h3>
-               <p style="font-size: 12px;">${rec.address}</p>
-               <p style="font-size: 12px;">${rec.description.substring(0, 100)}...</p>`,
-            ),
+            new mapboxgl.Popup({ offset: 25 })
+              .setHTML(
+                `<div style="background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 50%, #ffffff 100%); 
+                            padding: 12px; 
+                            border-radius: 8px;
+                            color: white;
+                            max-width: 250px;">
+                  <h3 style="font-weight: bold; margin: 0 0 8px 0; font-size: 14px; color: white;">${rec.name}</h3>
+                  <p style="margin: 0 0 6px 0; font-size: 12px; color: #e5e7eb;">${rec.address}</p>
+                  <p style="margin: 0; font-size: 12px; color: #f3f4f6;">${rec.description.substring(0, 100)}...</p>
+                </div>`
+              )
           )
           .addTo(map.current)
 
