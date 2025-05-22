@@ -36,7 +36,7 @@ export function MainMenu() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col relative">
+    <div className="h-screen flex flex-col relative overflow-hidden">
       {/* Barra de navegación */}
       <header className="bg-transparent fixed w-full z-50 h-16 flex items-center">
         <div className="absolute inset-0 bg-black/20 backdrop-blur-sm -z-10"></div>
@@ -149,11 +149,23 @@ export function MainMenu() {
       </header>
 
       {/* Contenido principal con el Hero */}
-      <main className="flex-grow pt-12 relative z-10">
-        <Hero />
+      <main className="flex-grow pt-12 relative z-10 flex flex-col items-center">
+        <div className="flex-1 flex flex-col items-center justify-center w-full pb-16">
+          <div className="flex-1 flex items-center justify-center w-full">
+            <Hero />
+          </div>
+          <div className="w-full text-center -mt-20">
+            <Link 
+              href="https://x.com/CarlosFreire0" 
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-block text-sm font-medium bg-gradient-to-r from-blue-400 to-white bg-clip-text text-transparent hover:opacity-80 transition-opacity px-3 py-1 rounded-full border border-blue-400/30 hover:border-blue-300/50"
+            >
+              By Carlos Freire
+            </Link>
+          </div>
+        </div>
       </main>
-
-
     </div>
   )
 }
