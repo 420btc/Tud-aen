@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { Menu, X, MapPin, Compass, Globe, LogIn, UserPlus } from "lucide-react"
+import { Menu, X, MapPin, Compass, Globe as GlobeIcon, LogIn, UserPlus } from "lucide-react"
 import { Button } from "./ui/button"
 import { Hero } from "./ui/animated-hero"
 
@@ -19,7 +19,7 @@ export function MainMenu() {
 
   const navItems = [
     { name: "Explorar", href: "/explore", icon: <Compass className="w-5 h-5 mr-2" /> },
-    { name: "Destinos", href: "/destinations", icon: <Globe className="w-5 h-5 mr-2" /> },
+    { name: "Destinos", href: "/destinations", icon: <GlobeIcon className="w-5 h-5 mr-2" /> },
     { name: "Rutas", href: "/routes", icon: <MapPin className="w-5 h-5 mr-2" /> },
   ]
 
@@ -33,15 +33,15 @@ export function MainMenu() {
   }
 
   return (
-    <div className="h-screen flex flex-col overflow-hidden">
+    <div className="h-screen flex flex-col overflow-hidden relative">
       {/* Barra de navegación */}
-      <header className="bg-black/90 backdrop-blur-sm border-b border-gray-800 fixed w-full z-50">
+      <header className="bg-gradient-to-r from-blue-600/40 via-purple-600/40 to-blue-600/40 backdrop-blur-md border-b border-blue-400/30 fixed w-full z-50 h-12">
         <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between h-16">
+          <div className="flex items-center justify-between h-full">
             {/* Logo */}
             <Link href="/" className="flex items-center space-x-2">
               <MapPin className="h-8 w-8 text-blue-400" />
-              <span className="text-xl font-bold bg-gradient-to-r from-blue-400 to-white bg-clip-text text-transparent">YourDayIn</span>
+              <span className="text-xl font-bold bg-gradient-to-r from-blue-300 to-white bg-clip-text text-transparent">YourDayIn</span>
             </Link>
 
             {/* Navegación para escritorio */}
@@ -115,7 +115,7 @@ className="font-medium bg-gradient-to-r from-blue-400 to-white bg-clip-text text
       </header>
 
       {/* Contenido principal con el Hero */}
-      <main className="flex-grow pt-16">
+      <main className="flex-grow pt-12">
         <Hero />
       </main>
 

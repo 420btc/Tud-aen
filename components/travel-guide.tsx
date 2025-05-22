@@ -201,7 +201,7 @@ export function TravelGuide() {
   return (
     <div className="relative bg-black text-white">
       {/* Header with search (fijo y fino) */}
-      <header className="fixed top-0 left-0 w-full z-50 p-1 bg-black/90 backdrop-blur-sm border-b border-gray-800 h-12 flex items-center">
+      <header className="fixed top-0 left-0 w-full z-50 p-1 bg-gradient-to-r from-blue-600/40 via-purple-600/40 to-blue-600/40 backdrop-blur-md border-b border-blue-400/30 h-12 flex items-center">
         <div className="w-full px-4 flex justify-between items-center">
           <div className="flex items-center space-x-2">
             <MapPin className="h-6 w-6 text-blue-400" />

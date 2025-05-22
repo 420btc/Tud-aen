@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { MoveRight, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
+import { Globe } from "./globe";
 
 function Hero() {
   const router = useRouter();
@@ -51,19 +52,17 @@ function Hero() {
   };
 
   return (
-    <div className="w-full relative bg-black min-h-screen">
-      {/* Fondo con overlay oscuro */}
+    <div className="w-full relative bg-black min-h-screen overflow-hidden">
+      {/* Fondo con globo terráqueo */}
       <div className="absolute inset-0 z-0">
-        <img 
-          src="/portadaxx.png" 
-          alt="Fondo de portada" 
-          className="w-full h-full object-cover opacity-70"
-        />
-        <div className="absolute inset-0 bg-black/60"></div>
+        <div className="absolute inset-0 w-full h-full">
+          <Globe className="absolute inset-0 w-full h-full opacity-90" />
+        </div>
+        <div className="absolute inset-0 bg-gradient-to-b from-black/90 via-black/70 to-black/90"></div>
       </div>
       
       {/* Contenido */}
-      <div className="container mx-auto relative z-10">
+      <div className="container mx-auto relative z-10 h-full">
         <div className="flex gap-8 py-20 lg:py-40 items-center justify-center flex-col">
           <div className="flex gap-4 flex-col">
             <h1 className="text-5xl md:text-7xl max-w-2xl tracking-tighter text-center font-regular bg-gradient-to-r from-blue-400 to-white bg-clip-text text-transparent">

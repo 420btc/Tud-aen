@@ -35,45 +35,65 @@ export function RecommendationsList({ recommendations, onRecommendationClick, se
             className={`border-2 transition-all duration-300 flex-shrink-0 w-64 h-80 flex flex-col cursor-pointer ${selectedRecommendation?.name === rec.name ? 'border-blue-400 bg-gradient-to-br from-blue-900/90 to-blue-950/90' : 'border-gray-700 bg-gradient-to-br from-gray-900 to-blue-950/80 hover:from-gray-800 hover:to-blue-900/80'}`}
             onClick={() => handleCardClick(rec)}
           >
-            <CardHeader className="pb-2">
-              <div className="flex items-center">
-                <div className="flex items-center justify-center w-8 h-8 rounded-full bg-blue-600 text-white font-bold mr-3">
-                  {index + 1}
+              <CardHeader className="pb-2 flex-none">
+                <div className="flex items-center">
+                  <div className="flex items-center justify-center w-8 h-8 rounded-full bg-blue-600 text-white font-bold mr-3 flex-shrink-0">
+                    {index + 1}
+                  </div>
+                  <CardTitle className="text-lg text-white truncate flex-1 min-w-0" title={rec.name}>
+                    {rec.name}
+                  </CardTitle>
                 </div>
-                <CardTitle className="text-lg text-white">{rec.name}</CardTitle>
-              </div>
-            </CardHeader>
-            <CardContent className="text-gray-200 pb-4 flex-1 flex flex-col">
-              <div className="flex items-start mb-2">
-                <MapPin className="h-4 w-4 text-blue-400 mr-2 mt-1 flex-shrink-0" />
-                <CardDescription className="text-gray-300">{rec.address}</CardDescription>
-              </div>
-              <p className="text-xs text-gray-300 mb-2 line-clamp-3 flex-1">{rec.description}</p>
-              {rec.tips && (
-                <div className="flex items-start text-xs text-gray-400 mb-2">
-                  <Info className="h-3.5 w-3.5 text-blue-400 mr-2 mt-0.5 flex-shrink-0" />
-                  <span className="line-clamp-2">{rec.tips}</span>
+              </CardHeader>
+              <CardContent className="text-gray-200 p-0 flex-1 flex flex-col min-h-0">
+                <div className="px-6">
+                  <div className="flex items-start mb-3">
+                    <MapPin className="h-4 w-4 text-blue-400 mr-2 mt-0.5 flex-shrink-0" />
+                    <CardDescription className="text-gray-300 text-xs line-clamp-2 flex-1 min-w-0" title={rec.address}>
+                      {rec.address}
+                    </CardDescription>
+                  </div>
                 </div>
-              )}
-              <div className="flex items-center justify-between mt-3">
-                <div className="flex items-center text-sm text-blue-400">
-                  <Clock className="h-4 w-4 mr-1" />
-                  <span>Tiempo: {rec.recommendedTime}</span>
+                
+                <div className="px-6 flex-1 flex flex-col min-h-0">
+                  <div className="flex-1 overflow-hidden">
+                    <p className="text-xs text-gray-300 mb-1 line-clamp-3" title={rec.description}>
+                      {rec.description}
+                    </p>
+                    
+                    {rec.tips && (
+                      <div className="bg-gray-800/40 p-2.5 rounded-md mt-3 mb-2 flex-1 min-h-[120px] flex flex-col">
+                        <div className="flex items-start text-xs text-gray-200">
+                          <Info className="h-3.5 w-3.5 text-blue-400 mr-2 mt-0.5 flex-shrink-0" />
+                          <span className="line-clamp-6 leading-relaxed" title={rec.tips}>
+                            {rec.tips}
+                          </span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </div>
-                <button 
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onRecommendationClick(rec);
-                  }}
-                  className="inline-flex items-center gap-1 px-3 py-1 text-sm rounded-md bg-blue-600/80 hover:bg-blue-500/90 transition-all duration-200 text-white"
-                  title="Ver en el mapa"
-                >
-                  <MapIcon className="h-3.5 w-3.5" />
-                  <span>Ver en mapa</span>
-                </button>
-              </div>
 
-            </CardContent>
+                <div className="mt-3 pt-3 border-t border-gray-700 px-6 pb-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center text-sm text-blue-400">
+                      <Clock className="h-4 w-4 mr-1" />
+                      <span className="text-xs">{rec.recommendedTime}</span>
+                    </div>
+                    <button 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onRecommendationClick(rec);
+                      }}
+                      className="inline-flex items-center gap-1 px-2.5 py-1 text-xs rounded-md bg-blue-600/80 hover:bg-blue-500/90 transition-all duration-200 text-white whitespace-nowrap"
+                      title="Ver en el mapa"
+                    >
+                      <MapIcon className="h-3 w-3" />
+                      <span>Ver en mapa</span>
+                    </button>
+                  </div>
+                </div>
+              </CardContent>
           </Card>
         ))}
       </div>
