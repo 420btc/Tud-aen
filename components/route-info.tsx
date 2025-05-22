@@ -28,47 +28,47 @@ export function RouteInfo({ routeInfo, recommendations }: RouteInfoProps) {
   const isWalkable = route.distance < 5000
 
   return (
-    <Card className="mt-6 border-blue-200 bg-blue-50">
+    <Card className="mt-6 border-gray-700 bg-gradient-to-br from-gray-900 to-blue-950/80 backdrop-blur-sm">
       <CardHeader className="pb-2">
-        <CardTitle className="text-lg text-blue-800 flex items-center">
-          <Route className="mr-2 h-5 w-5" />
+        <CardTitle className="text-lg text-white flex items-center">
+          <Route className="mr-2 h-5 w-5 text-blue-400" />
           Información de la ruta
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="space-y-3">
+        <div className="space-y-3 text-gray-200">
           <div className="flex items-center">
-            <Clock className="h-4 w-4 text-blue-600 mr-2" />
+            <Clock className="h-4 w-4 text-blue-400 mr-2" />
             <span className="text-sm">
-              Duración total: <strong>{durationInMinutes} minutos</strong>
+              Duración total: <strong className="text-white">{durationInMinutes} minutos</strong>
             </span>
           </div>
 
           <div className="flex items-center">
-            <Route className="h-4 w-4 text-blue-600 mr-2" />
+            <Route className="h-4 w-4 text-blue-400 mr-2" />
             <span className="text-sm">
-              Distancia total: <strong>{distanceInKm} km</strong>
+              Distancia total: <strong className="text-white">{distanceInKm} km</strong>
             </span>
           </div>
 
           <div className="flex items-center">
-            <Car className="h-4 w-4 text-blue-600 mr-2" />
+            <Car className="h-4 w-4 text-blue-400 mr-2" />
             <span className="text-sm">
-              Modo recomendado: <strong>{isWalkable ? "A pie 🚶" : "En coche 🚗"}</strong>
+              Modo recomendado: <strong className="text-white">{isWalkable ? "A pie 🚶" : "En coche 🚗"}</strong>
             </span>
           </div>
 
           {recommendations && recommendations.length > 0 && (
             <div className="mt-4">
-              <h4 className="text-sm font-semibold text-blue-700 mb-2">Circuito completo de visita:</h4>
+              <h4 className="text-sm font-semibold text-blue-300 mb-2">Circuito completo de visita:</h4>
               <ol className="list-decimal list-inside text-sm space-y-1 pl-2">
                 {recommendations.map((rec, index) => (
-                  <li key={index} className="text-gray-700">
-                    {rec.name} <span className="text-gray-500">({rec.recommendedTime})</span>
+                  <li key={index} className="text-gray-200">
+                    {rec.name} <span className="text-gray-400">({rec.recommendedTime})</span>
                   </li>
                 ))}
-                <li className="text-gray-700">
-                  {recommendations[0].name} <span className="text-gray-500">(Regreso al punto inicial)</span>
+                <li className="text-gray-200">
+                  {recommendations[0].name} <span className="text-gray-400">(Regreso al punto inicial)</span>
                 </li>
               </ol>
             </div>

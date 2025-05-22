@@ -123,7 +123,7 @@ export function TravelGuide() {
               }
 
               // Format waypoints for the Directions API
-              const waypointsString = waypoints.map((wp) => wp.join(",")).join(";")
+              const waypointsString = waypoints.map((wp: [number, number]) => wp.join(",")).join(";")
               console.log("Route waypoints:", waypointsString)
 
               // Call the Mapbox Directions API with optimized parameters
@@ -154,7 +154,8 @@ export function TravelGuide() {
               setRouteInfo(routeData)
             } catch (routeError) {
               console.error("Error fetching route:", routeError)
-              setError(`Error creating route: ${routeError.message}`)
+              const errorMessage = routeError instanceof Error ? routeError.message : 'Error desconocido al crear la ruta'
+              setError(`Error creando ruta: ${errorMessage}`)
               setRouteInfo(null)
             }
           }
@@ -173,24 +174,22 @@ export function TravelGuide() {
       console.error("Error fetching data:", error)
       setRecommendations([])
       setRouteInfo(null)
-      setError(`Error: ${error.message}`)
+      const errorMessage = error instanceof Error ? error.message : 'Error desconocido'
+      setError(`Error: ${errorMessage}`)
     } finally {
       setIsLoading(false)
     }
   }
 
   return (
-    <div className="flex flex-col h-screen">
-      <header className="bg-blue-600 text-white p-4 shadow-md">
-        <div className="container mx-auto">
-          <h1 className="text-2xl font-bold">TuDíaEn</h1>
-          <p className="text-blue-100">Descubre los mejores lugares para visitar</p>
-        </div>
-      </header>
-
-      <div className="flex flex-col md:flex-row h-full">
-        <div className="w-full md:w-1/3 p-4 overflow-y-auto bg-white">
-          <SearchBar onSearch={handleSearch} isLoading={isLoading} />
+    <div className="relative h-screen">
+      <div className="absolute inset-0 flex flex-col md:flex-row h-full">
+        <div className="w-full md:w-1/3 p-6 overflow-y-auto bg-black/90 backdrop-blur-sm border-r border-gray-800 text-white">
+          <div className="mb-6">
+            <h1 className="text-3xl font-extrabold text-white mb-1">TuDíaEn</h1>
+            <p className="text-gray-300 mb-6">Descubre los mejores lugares para visitar</p>
+            <SearchBar onSearch={handleSearch} isLoading={isLoading} />
+          </div>
 
           {error && <div className="mt-4 p-3 bg-red-100 border border-red-300 text-red-700 rounded">{error}</div>}
 

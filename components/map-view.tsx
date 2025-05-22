@@ -29,13 +29,16 @@ export function MapView({ coordinates, recommendations, routeInfo }: MapViewProp
       mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN
 
       // Use a less resource-intensive map style to reduce API calls
+      // Configuración inicial del mapa centrado en el mundo con zoom máximo
       map.current = new mapboxgl.Map({
         container: mapContainer.current,
-        style: "mapbox://styles/mapbox/satellite-streets-v12", // Use satellite view with street labels
-        center: coordinates || [-3.7038, 40.4168], // Default to Madrid if no coordinates
-        zoom: coordinates ? 12 : 5,
+        style: "mapbox://styles/mapbox/satellite-streets-v12",
+        center: [0, 20], // Centrado en el ecuador
+        zoom: 1.5, // Zoom inicial muy alejado para ver el mundo
+        minZoom: 1, // Zoom mínimo para evitar que el usuario se aleje demasiado
+        maxZoom: 16,
         projection: "globe",
-        maxZoom: 16, // Limit max zoom to reduce tile requests
+        renderWorldCopies: false // Evita la repetición del mapa
       })
 
       // Add error handling for map loading
