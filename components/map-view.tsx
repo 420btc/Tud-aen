@@ -9,9 +9,10 @@ interface MapViewProps {
   coordinates: [number, number] | null
   recommendations: Recommendation[]
   routeInfo: any | null
+  selectedRecommendation: Recommendation | null
 }
 
-export function MapView({ coordinates, recommendations, routeInfo }: MapViewProps) {
+export function MapView({ coordinates, recommendations, routeInfo, selectedRecommendation }: MapViewProps) {
   const mapContainer = useRef<HTMLDivElement>(null)
   const map = useRef<mapboxgl.Map | null>(null)
   const markersRef = useRef<mapboxgl.Marker[]>([])
@@ -95,13 +96,65 @@ export function MapView({ coordinates, recommendations, routeInfo }: MapViewProp
     }
   }, [coordinates])
 
-  // Add markers and route when recommendations change
+  // Add markers for each recommendation and handle selected recommendation
   useEffect(() => {
-    if (!map.current || !mapLoaded) return
+    if (!map.current || !mapLoaded || !recommendations.length) return
 
-    // Clear previous markers
-    markersRef.current.forEach((marker) => marker.remove())
+    // Clear existing markers
+    markersRef.current.forEach(marker => marker.remove())
     markersRef.current = []
+
+    // Add a marker for each recommendation
+    recommendations.forEach((rec, index) => {
+      // Create marker element
+      const el = document.createElement('div')
+      el.className = 'marker cursor-pointer'
+      el.innerHTML = `
+        <div class="relative">
+          <div class="bg-${selectedRecommendation?.name === rec.name ? 'green' : 'blue'}-600 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold text-sm shadow-lg border-2 border-white transition-colors">
+            ${index + 1}
+          </div>
+        </div>
+      `
+
+      // Add marker to map
+      const marker = new mapboxgl.Marker({
+        element: el,
+        anchor: 'bottom'
+      })
+        .setLngLat([rec.coordinates[0], rec.coordinates[1]])
+        .addTo(map.current!)
+
+      // Add popup
+      const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(`
+        <div class="text-black">
+          <h3 class="font-bold">${rec.name}</h3>
+          <p class="text-sm">${rec.address}</p>
+        </div>
+      `)
+
+      marker.setPopup(popup)
+      markersRef.current.push(marker)
+
+      // If this is the selected recommendation, fly to it and open popup
+      if (selectedRecommendation?.name === rec.name && map.current) {
+        map.current.flyTo({
+          center: [rec.coordinates[0], rec.coordinates[1]],
+          zoom: 14,
+          essential: true
+        });
+        
+        // Open the popup after the map has finished moving
+        const popup = marker.getPopup();
+        if (popup) {
+          setTimeout(() => {
+            if (!popup.isOpen()) {
+              marker.togglePopup();
+            }
+          }, 1000);
+        }
+      }
+    })
 
     // Clear previous route
     try {
@@ -114,60 +167,6 @@ export function MapView({ coordinates, recommendations, routeInfo }: MapViewProp
     } catch (error) {
       console.error("Error clearing previous route:", error)
     }
-
-    // If no recommendations, don't proceed further
-    if (!recommendations || recommendations.length === 0) return
-
-    console.log("Adding markers for recommendations:", recommendations.length)
-
-    // Add markers for each recommendation
-    recommendations.forEach((rec, index) => {
-      if (!map.current || !rec.coordinates) {
-        console.warn(`Missing coordinates for recommendation ${index}:`, rec)
-        return
-      }
-
-      try {
-        // Create custom marker element
-        const el = document.createElement("div")
-        el.className = "marker"
-        el.style.width = "32px"
-        el.style.height = "32px"
-        el.style.borderRadius = "50%"
-        el.style.backgroundColor = "#3b82f6"
-        el.style.color = "white"
-        el.style.fontWeight = "bold"
-        el.style.display = "flex"
-        el.style.alignItems = "center"
-        el.style.justifyContent = "center"
-        el.style.border = "2px solid white"
-        el.style.boxShadow = "0 2px 4px rgba(0,0,0,0.3)"
-        el.innerHTML = `${index + 1}`
-
-        // Add marker to map
-        const marker = new mapboxgl.Marker(el)
-          .setLngLat(rec.coordinates)
-          .setPopup(
-            new mapboxgl.Popup({ offset: 25 })
-              .setHTML(
-                `<div style="background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 50%, #ffffff 100%); 
-                            padding: 12px; 
-                            border-radius: 8px;
-                            color: white;
-                            max-width: 250px;">
-                  <h3 style="font-weight: bold; margin: 0 0 8px 0; font-size: 14px; color: white;">${rec.name}</h3>
-                  <p style="margin: 0 0 6px 0; font-size: 12px; color: #e5e7eb;">${rec.address}</p>
-                  <p style="margin: 0; font-size: 12px; color: #f3f4f6;">${rec.description.substring(0, 100)}...</p>
-                </div>`
-              )
-          )
-          .addTo(map.current)
-
-        markersRef.current.push(marker)
-      } catch (error) {
-        console.error(`Error adding marker for ${rec.name}:`, error)
-      }
-    })
 
     // Fit map to show all markers if we have any
     if (markersRef.current.length > 0 && map.current) {
@@ -225,7 +224,7 @@ export function MapView({ coordinates, recommendations, routeInfo }: MapViewProp
         }
       }
     }
-  }, [recommendations, routeInfo, mapLoaded])
+  }, [mapLoaded, recommendations, routeInfo, selectedRecommendation])
 
   // Show error message if map fails to load
   if (mapError) {

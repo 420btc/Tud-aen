@@ -124,50 +124,87 @@ export async function POST(request: NextRequest) {
       // Limitar a 5 recomendaciones
       recommendations = recommendations.slice(0, 5)
 
-      // Geocodificar las 5 recomendaciones con manejo mejorado de límites de tasa
-      const recommendationsWithCoordinates = []
+      // Primero obtenemos todas las recomendaciones sin procesar
+      const rawRecommendations = [...recommendations];
+      const recommendationsWithCoordinates = [];
 
       // Función para reintentar la geocodificación con retroceso exponencial
-      const geocodeWithRetry = async (query: string, reintentos = 3, demora = 1000) => {
-        for (let intento = 0; intento < reintentos; intento++) {
+      async function geocodeWithRetry(query: string, maxRetries = 5, initialDelay = 1500) {
+        let currentDelay = initialDelay;
+        
+        for (let attempt = 0; attempt < maxRetries; attempt++) {
           try {
-            const response = await fetch(
-              `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(query)}.json?access_token=${
-                process.env.NEXT_PUBLIC_MAPBOX_TOKEN
-              }&limit=1&proximity=${coordinates[0]},${coordinates[1]}`,
-              {
-                headers: {
-                  "Cache-Control": "max-age=3600", // Encabezados de caché
-                },
-              },
-            )
-
+            // Extraer parámetros de consulta si existen
+            const [baseQuery, params] = query.includes('?') 
+              ? query.split('?') 
+              : [query, ''];
+            
+            const url = new URL(`https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(baseQuery)}.json`);
+            
+            // Añadir parámetros de consulta
+            if (params) {
+              const searchParams = new URLSearchParams(params);
+              searchParams.forEach((value, key) => {
+                url.searchParams.append(key, value);
+              });
+            }
+            
+            // Asegurar que siempre tengamos el token de acceso
+            const mapboxToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
+            if (!mapboxToken) {
+              throw new Error('No se ha configurado el token de acceso a Mapbox. Verifica tus variables de entorno.');
+            }
+            url.searchParams.append('access_token', mapboxToken);
+            
+            console.log('Realizando solicitud de geocodificación a:', url.toString());
+            const response = await fetch(url.toString());
 
             if (response.status === 429) {
-              console.warn(`Límite de tasa alcanzado en el intento ${intento + 1}, esperando ${demora}ms antes de reintentar`)
-              await new Promise((resolve) => setTimeout(resolve, demora))
+              console.warn(`Límite de tasa alcanzado en el intento ${attempt + 1}, esperando ${currentDelay}ms antes de reintentar`);
+              await new Promise((resolve) => setTimeout(resolve, currentDelay));
               // Aumentar la demora para el próximo intento (retroceso exponencial)
-              demora *= 2
-              continue
+              currentDelay *= 2;
+              continue;
             }
 
             if (!response.ok) {
-              throw new Error(`Error en la API de geocodificación: ${response.status} ${response.statusText}`)
+              throw new Error(`Error en la API de geocodificación: ${response.status} ${response.statusText}`);
             }
 
-            return await response.json()
+            const data = await response.json();
+            
+            // Verificar si la respuesta tiene resultados relevantes
+            if (data.features && data.features.length > 0) {
+              // Ordenar por relevancia (mayor primero) y tomar el más relevante
+              data.features.sort((a: any, b: any) => (b.relevance || 0) - (a.relevance || 0));
+              return data;
+            }
+            
+            throw new Error('No se encontraron resultados relevantes');
+            
           } catch (error) {
-            if (intento === reintentos - 1) throw error
-            await new Promise((resolve) => setTimeout(resolve, demora))
-            demora *= 2
+            console.error(`Intento ${attempt + 1} fallido:`, error);
+            if (attempt === maxRetries - 1) throw error;
+            
+            // Esperar antes de reintentar
+            await new Promise((resolve) => setTimeout(resolve, currentDelay));
+            currentDelay *= 2; // Retroceso exponencial
           }
         }
+        
+        throw new Error(`No se pudo completar la geocodificación después de ${maxRetries} intentos`);
       }
 
 
-      // Procesar las 5 recomendaciones con el espaciado adecuado entre solicitudes
-      for (let i = 0; i < recommendations.length; i++) {
-        const rec = recommendations[i]
+      // Procesar cada recomendación para obtener sus coordenadas
+      for (let i = 0; i < rawRecommendations.length; i++) {
+        const rec = rawRecommendations[i];
+        console.log(`Procesando recomendación ${i + 1}/${rawRecommendations.length}: ${rec.name}`);
+        
+        // Pequeño retraso entre solicitudes para evitar límites de tasa
+        if (i > 0) {
+          await new Promise(resolve => setTimeout(resolve, 1000));
+        }
         try {
           if (!rec.name || !rec.address) {
             // Si faltan campos requeridos, usar valores predeterminados con desplazamiento
@@ -183,17 +220,35 @@ export async function POST(request: NextRequest) {
             continue
           }
 
-          // Agregar un retraso entre solicitudes de geocodificación para evitar límites de tasa
-          if (i > 0) {
-            await new Promise((resolve) => setTimeout(resolve, 1000)) // Retraso aumentado a 1 segundo
-          }
 
-          // Consulta de geocodificación mejorada con más contexto
-          const query = `${rec.name}, ${rec.address}, ${location}`
-          console.log(`Consulta de geocodificación para el lugar ${i + 1}: ${query}`)
+
+          // Construir consulta de geocodificación con más contexto
+          const searchText = [
+            rec.name,
+            rec.address,
+            location
+          ].filter(Boolean).join(', ');
+          
+          // Parámetros para mejorar la precisión de la búsqueda
+          const params = new URLSearchParams({
+            limit: '1',
+            language: 'es',
+            country: 'ES',
+            types: 'address,poi,place',
+            proximity: `${coordinates[0]},${coordinates[1]}`,
+            bbox: [
+              coordinates[0] - 0.1, // Oeste
+              coordinates[1] - 0.1, // Sur
+              coordinates[0] + 0.1, // Este
+              coordinates[1] + 0.1  // Norte
+            ].join(',')
+          });
+          
+          const query = `${searchText}?${params}`;
+          console.log(`Geocodificando: ${rec.name}`);
 
           try {
-            // Usar la función de reintento para la geocodificación
+            // Usar la función de reintento para la geocodificación con parámetros mejorados
             const geocodingData = await geocodeWithRetry(query)
 
             if (geocodingData.features && geocodingData.features.length > 0) {
@@ -267,7 +322,27 @@ export async function POST(request: NextRequest) {
         })),
       )
 
-      return NextResponse.json({ recommendations: recommendationsWithCoordinates })
+      // Asegurarnos de que todas las recomendaciones tengan coordenadas válidas
+      // Si no se pudieron geocodificar, usar coordenadas con desplazamiento
+      const finalRecommendations = recommendationsWithCoordinates.map((rec, index) => {
+        if (!rec.coordinates || !Array.isArray(rec.coordinates) || rec.coordinates.length !== 2) {
+          const offset = (index + 1) * 0.01; // Mayor desplazamiento para evitar superposición
+          return {
+            ...rec,
+            coordinates: [coordinates[0] + offset, coordinates[1] + offset] as [number, number],
+            hasFallbackCoordinates: true
+          };
+        }
+        return rec;
+      });
+
+      console.log('Total de recomendaciones procesadas:', finalRecommendations.length);
+
+      return NextResponse.json({ 
+        recommendations: finalRecommendations,
+        originalCount: rawRecommendations.length,
+        withCoordinates: finalRecommendations.length
+      })
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : 'Error desconocido';
       console.error("Error al procesar las recomendaciones:", error)

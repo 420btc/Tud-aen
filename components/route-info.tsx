@@ -28,51 +28,57 @@ export function RouteInfo({ routeInfo, recommendations }: RouteInfoProps) {
   const isWalkable = route.distance < 5000
 
   return (
-    <Card className="mt-6 border-gray-700 bg-gradient-to-br from-gray-900 to-blue-950/80 backdrop-blur-sm">
-      <CardHeader className="pb-2">
-        <CardTitle className="text-lg text-white flex items-center">
-          <Route className="mr-2 h-5 w-5 text-blue-400" />
-          Información de la ruta
-        </CardTitle>
+    <Card className="border-2 border-gray-700 bg-gradient-to-br from-gray-900 to-blue-950/80 flex-shrink-0 w-64 h-80 flex flex-col">
+      <CardHeader className="p-3 pb-1">
+        <div className="flex items-center">
+          <div className="flex items-center justify-center w-8 h-8 rounded-full bg-blue-600 text-white font-bold mr-3">
+            <Route className="h-4 w-4" />
+          </div>
+          <CardTitle className="text-lg text-white">Resumen Ruta</CardTitle>
+        </div>
       </CardHeader>
-      <CardContent>
-        <div className="space-y-3 text-gray-200">
-          <div className="flex items-center">
-            <Clock className="h-4 w-4 text-blue-400 mr-2" />
-            <span className="text-sm">
-              Duración total: <strong className="text-white">{durationInMinutes} minutos</strong>
-            </span>
+      <CardContent className="p-3 pt-0 flex-1 flex flex-col">
+        <div className="space-y-2 text-gray-200 flex-1">
+          <div className="flex items-start mb-2">
+            <Clock className="h-4 w-4 text-blue-400 mr-2 mt-1 flex-shrink-0" />
+            <div>
+              <div className="text-sm text-white">Duración: {durationInMinutes} min</div>
+              <div className="text-xs text-gray-400">Distancia: {distanceInKm} km</div>
+            </div>
           </div>
-
-          <div className="flex items-center">
-            <Route className="h-4 w-4 text-blue-400 mr-2" />
-            <span className="text-sm">
-              Distancia total: <strong className="text-white">{distanceInKm} km</strong>
-            </span>
-          </div>
-
-          <div className="flex items-center">
+          
+          <div className="flex items-center mb-3">
             <Car className="h-4 w-4 text-blue-400 mr-2" />
             <span className="text-sm">
-              Modo recomendado: <strong className="text-white">{isWalkable ? "A pie 🚶" : "En coche 🚗"}</strong>
+              <span className="text-white">{isWalkable ? "A pie 🚶" : "En coche 🚗"}</span>
             </span>
           </div>
 
-          {recommendations && recommendations.length > 0 && (
-            <div className="mt-4">
-              <h4 className="text-sm font-semibold text-blue-300 mb-2">Circuito completo de visita:</h4>
-              <ol className="list-decimal list-inside text-sm space-y-1 pl-2">
-                {recommendations.map((rec, index) => (
-                  <li key={index} className="text-gray-200">
-                    {rec.name} <span className="text-gray-400">({rec.recommendedTime})</span>
-                  </li>
-                ))}
-                <li className="text-gray-200">
-                  {recommendations[0].name} <span className="text-gray-400">(Regreso al punto inicial)</span>
-                </li>
-              </ol>
+          <div className="mt-2 border-t border-gray-700 pt-2">
+            <h4 className="text-sm font-medium text-blue-300 mb-1">Recorrido:</h4>
+            <div className="space-y-1 max-h-36 overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-blue-900 scrollbar-track-transparent">
+              {recommendations.map((rec, index) => (
+                <div key={index} className="flex items-start text-xs">
+                  <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-blue-600 text-white text-xs font-bold mr-2 mt-0.5 flex-shrink-0">
+                    {index + 1}
+                  </span>
+                  <div className="truncate">
+                    <div className="text-white truncate">{rec.name}</div>
+                    <div className="text-gray-400 text-xs">{rec.recommendedTime}</div>
+                  </div>
+                </div>
+              ))}
+              <div className="flex items-start text-xs mt-2 pt-1 border-t border-gray-700">
+                <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-blue-900/60 text-white text-xs font-bold mr-2 mt-0.5 flex-shrink-0">
+                  {recommendations.length + 1}
+                </span>
+                <div>
+                  <div className="text-white">Regreso al inicio</div>
+                  <div className="text-gray-400 text-xs">Punto de partida</div>
+                </div>
+              </div>
             </div>
-          )}
+          </div>
         </div>
       </CardContent>
     </Card>

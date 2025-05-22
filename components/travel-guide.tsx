@@ -17,6 +17,7 @@ export function TravelGuide() {
   const [recommendations, setRecommendations] = useState<Recommendation[]>([])
   const [routeInfo, setRouteInfo] = useState<any | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [selectedRecommendation, setSelectedRecommendation] = useState<Recommendation | null>(null)
 
   // Function to retry API calls with exponential backoff
   const fetchWithRetry = async (url: string, options: RequestInit, retries = 3, delay = 1000) => {
@@ -42,8 +43,14 @@ export function TravelGuide() {
     throw new Error("Max retries reached")
   }
 
+  // Handle when a recommendation card is clicked
+  const handleRecommendationClick = (recommendation: Recommendation) => {
+    setSelectedRecommendation(recommendation);
+  };
+
   // Update the handleSearch function to include all 5 points in the route
   const handleSearch = async (searchLocation: string) => {
+    setSelectedRecommendation(null); // Reset selected recommendation on new search
     setIsLoading(true)
     setError(null)
     setLocation(searchLocation)
@@ -219,32 +226,25 @@ export function TravelGuide() {
 
       {/* Map section (ocupa toda la pantalla menos el header) */}
       <div className="relative w-full h-screen bg-black">
-        <MapView coordinates={coordinates} recommendations={recommendations || []} routeInfo={routeInfo} />
+        <MapView 
+          coordinates={coordinates} 
+          recommendations={recommendations} 
+          routeInfo={routeInfo} 
+          selectedRecommendation={selectedRecommendation} 
+        />
 
         {/* Recommendations overlay */}
         {(recommendations && recommendations.length > 0) && (
-          <div className="absolute left-1/2 bottom-6 transform -translate-x-1/2 z-20 w-full flex flex-col items-center pointer-events-none">
-            <h2 className="text-lg font-bold text-white mb-2 text-center pointer-events-auto bg-black/60 rounded px-4 py-1">
+          <div className="absolute bottom-0 left-0 right-0 z-20 pb-4">
+            <h2 className="text-lg font-bold text-white mb-3 text-center">
               Lugares recomendados en {location}
             </h2>
-            <div className="flex flex-nowrap overflow-x-auto gap-4 pb-2 scrollbar-hide pointer-events-auto max-w-3xl mx-auto">
-              {recommendations.map((rec, index) => (
-                <div
-                  key={index}
-                  className="flex-shrink-0 w-56 h-48 bg-gray-800 bg-opacity-95 rounded-lg overflow-hidden shadow-lg pointer-events-auto flex flex-col justify-between"
-                >
-                  <div className="p-3 flex flex-col justify-between h-full">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-blue-600 text-white text-xs font-bold shadow">{index + 1}</span>
-                      <h3 className="font-bold text-white text-base truncate flex-1">{rec.name}</h3>
-                    </div>
-                    <p className="text-gray-300 text-xs mb-1 line-clamp-2">{rec.description}</p>
-                    <p className="text-gray-400 text-xs truncate">📍 {rec.address}</p>
-                    <p className="text-yellow-400 text-xs mt-1">⏱️ {rec.recommendedTime}</p>
-                    <p className="text-blue-300 text-xs mt-1 italic line-clamp-2">💡 {rec.tips}</p>
-                  </div>
-                </div>
-              ))}
+            <div className="w-full px-4">
+              <RecommendationsList 
+                recommendations={recommendations}
+                onRecommendationClick={setSelectedRecommendation}
+                selectedRecommendation={selectedRecommendation}
+              />
             </div>
           </div>
         )}
