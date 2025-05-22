@@ -228,7 +228,10 @@ export function TravelGuide() {
                   className="flex-shrink-0 w-56 h-48 bg-gray-800 bg-opacity-95 rounded-lg overflow-hidden shadow-lg pointer-events-auto flex flex-col justify-between"
                 >
                   <div className="p-3 flex flex-col justify-between h-full">
-                    <h3 className="font-bold text-white mb-1 text-base truncate">{rec.name}</h3>
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-blue-600 text-white text-xs font-bold shadow">{index + 1}</span>
+                      <h3 className="font-bold text-white text-base truncate flex-1">{rec.name}</h3>
+                    </div>
                     <p className="text-gray-300 text-xs mb-1 line-clamp-2">{rec.description}</p>
                     <p className="text-gray-400 text-xs truncate">📍 {rec.address}</p>
                     <p className="text-yellow-400 text-xs mt-1">⏱️ {rec.recommendedTime}</p>
