@@ -38,38 +38,38 @@ export function MainMenu() {
   return (
     <div className="min-h-screen flex flex-col relative">
       {/* Barra de navegación */}
-      <header className="bg-gradient-to-r from-blue-600/40 via-purple-600/40 to-blue-600/40 backdrop-blur-md border-b border-blue-400/30 fixed w-full z-50 h-12">
+      <header className="bg-transparent fixed w-full z-50 h-16 flex items-center">
+        <div className="absolute inset-0 bg-black/20 backdrop-blur-sm -z-10"></div>
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between h-full">
             {/* Logo */}
-            <Link href="/" className="flex items-center space-x-2">
+            <Link href="/" className="flex items-center space-x-2 z-10">
               <MapPin className="h-8 w-8 text-blue-400" />
               <span className="text-xl font-bold bg-gradient-to-r from-blue-300 to-white bg-clip-text text-transparent">YourDayIn</span>
             </Link>
 
             {/* Navegación para escritorio */}
-            <nav className="hidden md:flex items-center space-x-8">
+            <nav className="hidden md:flex items-center space-x-2">
               {navItems.map((item) => (
                 <Link
                   key={item.name}
                   href={item.href}
-                  className="font-medium bg-gradient-to-r from-blue-400 to-white bg-clip-text text-transparent hover:from-blue-300 hover:to-gray-200 transition-colors duration-200 flex items-center"
+                  className="font-medium text-white hover:bg-slate-700/50 transition-colors duration-200 flex items-center px-4 py-2 rounded-full bg-slate-800/60 backdrop-blur-sm"
                 >
                   {item.icon}
-                  {item.name}
+                  <span className="ml-2">{item.name}</span>
                 </Link>
               ))}
             </nav>
 
-            {/* Botones de autenticación */}
-            <div className="hidden md:flex items-center space-x-4">
-              <Button variant="ghost" className="text-white hover:bg-gray-800">
-                <LogIn className="w-5 h-5 mr-2" />
+            {/* Botón de autenticación */}
+            <div className="hidden md:flex items-center z-10">
+              <Button 
+                variant="ghost" 
+                className="text-white hover:bg-slate-700/50 bg-slate-800/60 backdrop-blur-sm rounded-full px-4 h-9"
+              >
+                <LogIn className="w-4 h-4 mr-2" />
                 Iniciar sesión
-              </Button>
-              <Button className="bg-blue-600 hover:bg-blue-700">
-                <UserPlus className="w-5 h-5 mr-2" />
-                Registrarse
               </Button>
             </div>
 
