@@ -6,34 +6,34 @@ export async function POST(request: NextRequest) {
     const { location, coordinates } = await request.json()
 
     if (!location || !coordinates) {
-      return NextResponse.json({ error: "Location and coordinates are required" }, { status: 400 })
+      return NextResponse.json({ error: "Se requiere ubicación y coordenadas" }, { status: 400 })
     }
 
-    // Prepare the prompt for OpenAI - explicitly ask for raw JSON
+    // Preparar el prompt para OpenAI - pedir explícitamente JSON
     const prompt = `
-      Act as a professional tour guide for ${location}. 
-      Provide exactly 5 must-visit tourist attractions or emblematic places in this area.
+      Actúa como un guía turístico profesional para ${location}. 
+      Proporciona exactamente 5 atracciones turísticas o lugares emblemáticos que sean imperdibles en esta zona.
       
-      For each place, include:
-      1. Name of the place (be specific and accurate with the official name)
-      2. A brief description (2-3 sentences)
-      3. Address or location (be as specific and accurate as possible with the full address)
-      4. Recommended time to spend there
-      5. A helpful tip for visitors
+      Para cada lugar, incluye:
+      1. Nombre del lugar (sé específico y preciso con el nombre oficial)
+      2. Una breve descripción (2-3 oraciones)
+      3. Dirección o ubicación (sé lo más específico y preciso posible con la dirección completa)
+      4. Tiempo recomendado para la visita
+      5. Un consejo útil para los visitantes
       
-      Format your response as a JSON array with the following structure for each place:
+      Formatea tu respuesta como un arreglo JSON con la siguiente estructura para cada lugar:
       {
-        "name": "Place name",
-        "description": "Brief description",
-        "address": "Address or location",
-        "recommendedTime": "e.g., 1-2 hours",
-        "tips": "A helpful tip"
+        "name": "Nombre del lugar",
+        "description": "Descripción breve",
+        "address": "Dirección o ubicación",
+        "recommendedTime": "ej. 1-2 horas",
+        "tips": "Un consejo útil"
       }
       
-      IMPORTANT: Return ONLY the raw JSON array without any markdown formatting, code blocks, or additional text.
+      IMPORTANTE: Devuelve SOLO el arreglo JSON sin formato markdown, bloques de código o texto adicional.
     `
 
-    // Call OpenAI API
+    // Llamar a la API de OpenAI
     const openaiResponse = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
           {
             role: "system",
             content:
-              "You are a professional tour guide with extensive knowledge of global tourist destinations. You MUST respond with raw JSON only, no markdown formatting or explanations.",
+              "Eres un guía turístico profesional con amplio conocimiento de destinos turísticos globales. DEBES responder ÚNICAMENTE con JSON sin formato, sin marcas de formato ni explicaciones.",
           },
           {
             role: "user",
@@ -55,38 +55,38 @@ export async function POST(request: NextRequest) {
         ],
         temperature: 0.7,
         max_tokens: 1000,
-        response_format: { type: "json_object" }, // Force JSON response format
+        response_format: { type: "json_object" }, // Forzar formato de respuesta JSON
       }),
     })
 
     if (!openaiResponse.ok) {
       const errorData = await openaiResponse.json()
-      console.error("OpenAI API error:", errorData)
-      return NextResponse.json({ error: "Failed to get recommendations from AI" }, { status: 500 })
+      console.error("Error en la API de OpenAI:", errorData)
+      return NextResponse.json({ error: "Error al obtener recomendaciones de la IA" }, { status: 500 })
     }
 
     const openaiData = await openaiResponse.json()
 
-    // Check if we have a valid response from OpenAI
+    // Verificar si tenemos una respuesta válida de OpenAI
     if (!openaiData || !openaiData.choices || !openaiData.choices[0] || !openaiData.choices[0].message) {
-      console.error("Invalid response from OpenAI:", openaiData)
-      return NextResponse.json({ error: "Invalid response from AI" }, { status: 500 })
+      console.error("Respuesta no válida de OpenAI:", openaiData)
+      return NextResponse.json({ error: "Respuesta no válida de la IA" }, { status: 500 })
     }
 
     let recommendations: Recommendation[] = []
 
     try {
-      // Parse the response from OpenAI with improved error handling
+      // Analizar la respuesta de OpenAI con manejo mejorado de errores
       const content = openaiData.choices[0].message.content
-      console.log("Raw OpenAI response:", content)
+      console.log("Respuesta cruda de OpenAI:", content)
 
-      // Clean up the content to handle markdown code blocks
+      // Limpiar el contenido para manejar bloques de código markdown
       const jsonContent = content
-        .replace(/```json\s*/g, "") // Remove \`\`\`json
-        .replace(/```\s*$/g, "") // Remove closing \`\`\`
+        .replace(/```json\s*/g, "") // Eliminar \`\`\`json
+        .replace(/```\s*$/g, "") // Eliminar cierre de \`\`\`
         .trim()
 
-      // If the content is wrapped in an object with a "recommendations" field, extract it
+      // Si el contenido está envuelto en un objeto con un campo "recommendations", extraerlo
       try {
         const parsedContent = JSON.parse(jsonContent)
         if (parsedContent.recommendations && Array.isArray(parsedContent.recommendations)) {
@@ -94,7 +94,7 @@ export async function POST(request: NextRequest) {
         } else if (Array.isArray(parsedContent)) {
           recommendations = parsedContent
         } else {
-          // Look for an array in any property
+          // Buscar un arreglo en cualquier propiedad
           for (const key in parsedContent) {
             if (Array.isArray(parsedContent[key])) {
               recommendations = parsedContent[key]
@@ -103,33 +103,33 @@ export async function POST(request: NextRequest) {
           }
         }
       } catch (parseError) {
-        console.error("Error parsing cleaned JSON:", parseError)
+        console.error("Error al analizar el JSON limpio:", parseError)
 
-        // Try to extract JSON array using regex as a last resort
+        // Intentar extraer un arreglo JSON usando regex como último recurso
         const arrayMatch = jsonContent.match(/\[\s*\{[\s\S]*\}\s*\]/)
         if (arrayMatch) {
           recommendations = JSON.parse(arrayMatch[0])
         } else {
-          throw new Error("Could not parse JSON from OpenAI response")
+          throw new Error("No se pudo analizar la respuesta JSON de OpenAI")
         }
       }
 
-      // Validate that recommendations is an array
+      // Validar que las recomendaciones sean un arreglo
       if (!Array.isArray(recommendations)) {
-        throw new Error("OpenAI did not return an array of recommendations")
+        throw new Error("OpenAI no devolvió un arreglo de recomendaciones")
       }
 
-      console.log("Parsed recommendations:", recommendations)
+      console.log("Recomendaciones analizadas:", recommendations)
 
-      // Limit to 5 recommendations
+      // Limitar a 5 recomendaciones
       recommendations = recommendations.slice(0, 5)
 
-      // Geocode all 5 recommendations with improved rate limit handling
+      // Geocodificar las 5 recomendaciones con manejo mejorado de límites de tasa
       const recommendationsWithCoordinates = []
 
-      // Function to retry geocoding with exponential backoff
-      const geocodeWithRetry = async (query, retries = 3, delay = 1000) => {
-        for (let attempt = 0; attempt < retries; attempt++) {
+      // Función para reintentar la geocodificación con retroceso exponencial
+      const geocodeWithRetry = async (query: string, reintentos = 3, demora = 1000) => {
+        for (let intento = 0; intento < reintentos; intento++) {
           try {
             const response = await fetch(
               `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(query)}.json?access_token=${
@@ -137,68 +137,70 @@ export async function POST(request: NextRequest) {
               }&limit=1&proximity=${coordinates[0]},${coordinates[1]}`,
               {
                 headers: {
-                  "Cache-Control": "max-age=3600", // Add caching headers
+                  "Cache-Control": "max-age=3600", // Encabezados de caché
                 },
               },
             )
 
+
             if (response.status === 429) {
-              console.warn(`Rate limit hit on attempt ${attempt + 1}, waiting ${delay}ms before retry`)
-              await new Promise((resolve) => setTimeout(resolve, delay))
-              // Increase delay for next attempt (exponential backoff)
-              delay *= 2
+              console.warn(`Límite de tasa alcanzado en el intento ${intento + 1}, esperando ${demora}ms antes de reintentar`)
+              await new Promise((resolve) => setTimeout(resolve, demora))
+              // Aumentar la demora para el próximo intento (retroceso exponencial)
+              demora *= 2
               continue
             }
 
             if (!response.ok) {
-              throw new Error(`Geocoding API error: ${response.status} ${response.statusText}`)
+              throw new Error(`Error en la API de geocodificación: ${response.status} ${response.statusText}`)
             }
 
             return await response.json()
           } catch (error) {
-            if (attempt === retries - 1) throw error
-            await new Promise((resolve) => setTimeout(resolve, delay))
-            delay *= 2
+            if (intento === reintentos - 1) throw error
+            await new Promise((resolve) => setTimeout(resolve, demora))
+            demora *= 2
           }
         }
       }
 
-      // Process all 5 recommendations with proper spacing between requests
+
+      // Procesar las 5 recomendaciones con el espaciado adecuado entre solicitudes
       for (let i = 0; i < recommendations.length; i++) {
         const rec = recommendations[i]
         try {
           if (!rec.name || !rec.address) {
-            // If recommendation is missing required fields, use default values with offset
+            // Si faltan campos requeridos, usar valores predeterminados con desplazamiento
             const offset = (i + 1) * 0.005
             recommendationsWithCoordinates.push({
-              name: rec.name || "Unknown Place",
-              description: rec.description || "No description available",
-              address: rec.address || "No address available",
-              recommendedTime: rec.recommendedTime || "1 hour",
-              tips: rec.tips || "No tips available",
+              name: rec.name || "Lugar desconocido",
+              description: rec.description || "No hay descripción disponible",
+              address: rec.address || "Dirección no disponible",
+              recommendedTime: rec.recommendedTime || "1 hora",
+              tips: rec.tips || "No hay consejos disponibles",
               coordinates: [coordinates[0] + offset, coordinates[1] + offset] as [number, number],
             })
             continue
           }
 
-          // Add a delay between geocoding requests to avoid rate limits
+          // Agregar un retraso entre solicitudes de geocodificación para evitar límites de tasa
           if (i > 0) {
-            await new Promise((resolve) => setTimeout(resolve, 1000)) // Increased delay to 1 second
+            await new Promise((resolve) => setTimeout(resolve, 1000)) // Retraso aumentado a 1 segundo
           }
 
-          // Improved geocoding query with more context
+          // Consulta de geocodificación mejorada con más contexto
           const query = `${rec.name}, ${rec.address}, ${location}`
-          console.log(`Geocoding query for place ${i + 1}: ${query}`)
+          console.log(`Consulta de geocodificación para el lugar ${i + 1}: ${query}`)
 
           try {
-            // Use the retry function for geocoding
+            // Usar la función de reintento para la geocodificación
             const geocodingData = await geocodeWithRetry(query)
 
             if (geocodingData.features && geocodingData.features.length > 0) {
               const feature = geocodingData.features[0]
               const [lng, lat] = feature.center
 
-              console.log(`Successfully geocoded "${rec.name}" to [${lng}, ${lat}]`)
+              console.log(`Geocodificación exitosa para "${rec.name}" en [${lng}, ${lat}]`)
 
               recommendationsWithCoordinates.push({
                 ...rec,
@@ -209,25 +211,25 @@ export async function POST(request: NextRequest) {
                 },
               })
             } else {
-              // Try a more general search if the specific one failed
+              // Intentar una búsqueda más general si la específica falla
               await new Promise((resolve) => setTimeout(resolve, 1000))
 
               const fallbackQuery = `${rec.name}, ${location}`
-              console.log(`Using fallback query: ${fallbackQuery}`)
+              console.log(`Usando consulta alternativa: ${fallbackQuery}`)
 
               const fallbackData = await geocodeWithRetry(fallbackQuery)
 
               if (fallbackData.features && fallbackData.features.length > 0) {
                 const [lng, lat] = fallbackData.features[0].center
-                console.log(`Used fallback geocoding for "${rec.name}" to [${lng}, ${lat}]`)
+                console.log(`Geocodificación alternativa usada para "${rec.name}" en [${lng}, ${lat}]`)
                 recommendationsWithCoordinates.push({
                   ...rec,
                   coordinates: [lng, lat] as [number, number],
                 })
               } else {
-                // If all geocoding attempts fail, use the main coordinates with a small offset
+                // Si todos los intentos de geocodificación fallan, usar las coordenadas principales con un pequeño desplazamiento
                 const offset = (i + 1) * 0.005
-                console.log(`Using offset coordinates for "${rec.name}"`)
+                console.log(`Usando coordenadas con desplazamiento para "${rec.name}"`)
                 recommendationsWithCoordinates.push({
                   ...rec,
                   coordinates: [coordinates[0] + offset, coordinates[1] + offset] as [number, number],
@@ -235,8 +237,8 @@ export async function POST(request: NextRequest) {
               }
             }
           } catch (geocodingError) {
-            console.error(`Error geocoding "${rec.name}":`, geocodingError)
-            // Use offset coordinates as fallback
+            console.error(`Error en la geocodificación de "${rec.name}":`, geocodingError)
+            // Usar coordenadas con desplazamiento como respaldo
             const offset = (i + 1) * 0.005
             recommendationsWithCoordinates.push({
               ...rec,
@@ -245,8 +247,8 @@ export async function POST(request: NextRequest) {
             })
           }
         } catch (error) {
-          console.error(`Error processing recommendation "${rec.name}":`, error)
-          // Fallback to main coordinates with offset
+          console.error(`Error procesando la recomendación "${rec.name}":`, error)
+          // Usar coordenadas principales con desplazamiento como respaldo
           const offset = (i + 1) * 0.005
           recommendationsWithCoordinates.push({
             ...rec,
@@ -256,22 +258,24 @@ export async function POST(request: NextRequest) {
         }
       }
 
-      // Log the final recommendations with coordinates for debugging
+      // Registrar las recomendaciones finales con coordenadas para depuración
       console.log(
-        "Final recommendations with coordinates:",
+        "Recomendaciones finales con coordenadas:",
         recommendationsWithCoordinates.map((r) => ({
-          name: r.name,
-          coordinates: r.coordinates,
+          nombre: r.name,
+          coordenadas: r.coordinates,
         })),
       )
 
       return NextResponse.json({ recommendations: recommendationsWithCoordinates })
-    } catch (error) {
-      console.error("Error processing recommendations:", error)
-      return NextResponse.json({ error: "Failed to process recommendations: " + error.message }, { status: 500 })
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Error desconocido';
+      console.error("Error al procesar las recomendaciones:", error)
+      return NextResponse.json({ error: "Error al procesar las recomendaciones: " + errorMessage }, { status: 500 })
     }
-  } catch (error) {
-    console.error("Server error:", error)
-    return NextResponse.json({ error: "Internal server error: " + error.message }, { status: 500 })
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Error desconocido';
+    console.error("Error del servidor:", error)
+    return NextResponse.json({ error: "Error interno del servidor: " + errorMessage }, { status: 500 })
   }
 }

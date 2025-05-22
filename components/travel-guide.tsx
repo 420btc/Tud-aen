@@ -1,6 +1,9 @@
 "use client"
 
 import { useState } from "react"
+import { useRouter } from "next/navigation"
+import { Menu } from "lucide-react"
+import { Button } from "./ui/button"
 import { MapView } from "./map-view"
 import { SearchBar } from "./search-bar"
 import { RecommendationsList } from "./recommendations-list"
@@ -181,13 +184,32 @@ export function TravelGuide() {
     }
   }
 
+  const router = useRouter()
+
+  const handleMenuClick = () => {
+    router.push('/')
+  }
+
   return (
     <div className="relative h-screen">
       <div className="absolute inset-0 flex flex-col md:flex-row h-full">
         <div className="w-full md:w-1/3 p-6 overflow-y-auto bg-black/90 backdrop-blur-sm border-r border-gray-800 text-white">
+          <div className="flex justify-between items-start mb-6">
+            <div>
+              <h1 className="text-3xl font-extrabold text-white mb-1">TuDíaEn</h1>
+              <p className="text-gray-300">Descubre los mejores lugares para visitar</p>
+            </div>
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="text-white hover:bg-gray-800"
+              onClick={handleMenuClick}
+              aria-label="Menú principal"
+            >
+              <Menu className="h-6 w-6" />
+            </Button>
+          </div>
           <div className="mb-6">
-            <h1 className="text-3xl font-extrabold text-white mb-1">TuDíaEn</h1>
-            <p className="text-gray-300 mb-6">Descubre los mejores lugares para visitar</p>
             <SearchBar onSearch={handleSearch} isLoading={isLoading} />
           </div>
 
