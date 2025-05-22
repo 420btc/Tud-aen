@@ -33,7 +33,7 @@ export function MainMenu() {
   }
 
   return (
-    <div className="h-screen flex flex-col overflow-hidden relative">
+    <div className="min-h-screen flex flex-col relative">
       {/* Barra de navegación */}
       <header className="bg-gradient-to-r from-blue-600/40 via-purple-600/40 to-blue-600/40 backdrop-blur-md border-b border-blue-400/30 fixed w-full z-50 h-12">
         <div className="container mx-auto px-4">
@@ -115,7 +115,7 @@ className="font-medium bg-gradient-to-r from-blue-400 to-white bg-clip-text text
       </header>
 
       {/* Contenido principal con el Hero */}
-      <main className="flex-grow pt-12">
+      <main className="flex-grow pt-12 relative z-10">
         <Hero />
       </main>
 

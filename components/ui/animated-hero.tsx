@@ -52,17 +52,15 @@ function Hero() {
   };
 
   return (
-    <section className="relative w-full overflow-hidden bg-black">
-      {/* Globe container with overlay content */}
-      <div className="relative w-full flex items-center justify-center" style={{ height: '50vh', minHeight: '600px' }}>
-        {/* Globe background */}
-        <div className="absolute inset-0 w-full h-full">
-          <Globe className="absolute inset-0 w-full h-full opacity-90" />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/50 to-black/80"></div>
-        </div>
-        
-        {/* Content overlay */}
-        <div className="relative z-10 w-full max-w-6xl mx-auto px-4 text-center">
+    <div className="relative w-full min-h-screen">
+      {/* Globe background - Fixed to viewport */}
+      <div className="fixed top-0 left-0 w-screen h-screen -z-10">
+        <Globe className="w-full h-full" />
+      </div>
+      
+      {/* Content container */}
+      <div className="relative w-full max-w-6xl mx-auto px-4 py-32 z-10 min-h-screen flex flex-col justify-center">
+        <div className="relative z-10 w-full text-center">
           <div className="space-y-6">
             <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight">
               <span className="block bg-gradient-to-r from-blue-300 to-white bg-clip-text text-transparent">
@@ -90,20 +88,19 @@ function Hero() {
               Encuentra los destinos más increíbles y planifica tu próxima aventura.
             </p>
             
-            <div className="flex flex-col sm:flex-row gap-4 justify-center pt-6">
+            <div className="flex flex-col sm:flex-row gap-4 justify-center mt-8">
               <Button 
                 size="lg" 
-                className="gap-3 bg-blue-600 hover:bg-blue-700 text-white text-lg px-8 py-6 transform transition-all hover:scale-105"
-                onClick={handleSearchClick}
+                className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-6 text-lg font-semibold transition-all duration-300 transform hover:scale-105"
               >
-                Explorar Ahora <MapPin className="w-5 h-5" />
+                Explorar Ahora
               </Button>
               <Button 
+                variant="outline" 
                 size="lg" 
-                variant="outline"
-                className="gap-3 text-white hover:bg-white/10 text-lg px-8 py-6 border-white/30 transform transition-all hover:scale-105"
+                className="border-2 border-white/20 text-white hover:bg-white/10 px-8 py-6 text-lg font-semibold transition-all duration-300 transform hover:scale-105"
               >
-                Ver ofertas <MoveRight className="w-5 h-5" />
+                Ver ofertas
               </Button>
             </div>
             
@@ -114,7 +111,9 @@ function Hero() {
           </div>
         </div>
       </div>
-    </section>
+      
+
+    </div>
   );
 }
 

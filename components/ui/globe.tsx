@@ -6,19 +6,20 @@ import { useCallback, useEffect, useRef, useState } from "react"
 import { cn } from "@/lib/utils"
 
 const GLOBE_CONFIG: COBEOptions = {
-  width: 800,
-  height: 800,
+  width: 1000,
+  height: 1000,
   onRender: () => {},
-  devicePixelRatio: 2,
+  devicePixelRatio: 1,
   phi: 0,
   theta: 0.3,
-  dark: 0,  // Fondo negro para mejor contraste
+  dark: 1,  // Fondo oscuro para mejor contraste
   mapSamples: 16000,
-  mapBrightness: 2.0,  // Aumentar brillo para mejor visibilidad
-  baseColor: [1, 1, 1],  // Líneas blancas
-  markerColor: [1, 0.85, 0],  // Amarillo para los marcadores
-  glowColor: [1, 1, 1],  // Resplandor blanco
-  diffuse: 1.2,  // Aumentar difusión para mejor iluminación
+  mapBrightness: 4.0,  // Aumentar brillo para mejor visibilidad
+  baseColor: [0.2, 0.4, 0.8],  // Color base azul
+  markerColor: [1, 0.9, 0.1],  // Amarillo para los marcadores
+  glowColor: [0.1, 0.2, 0.8],  // Resplandor azul
+  diffuse: 1.5,  // Aumentar difusión para mejor iluminación
+  opacity: 1,  // Asegurar opacidad máxima
   markers: [
     { location: [14.5995, 120.9842], size: 0.03 },
     { location: [19.076, 72.8777], size: 0.1 },
@@ -43,9 +44,11 @@ export function Globe({
   let phi = 0
   let width = 0
   const canvasRef = useRef<HTMLCanvasElement>(null)
+  const containerRef = useRef<HTMLDivElement>(null)
   const pointerInteracting = useRef<number | null>(null)
   const pointerInteractionMovement = useRef(0)
   const [r, setR] = useState(0)
+  const [canvasSize, setCanvasSize] = useState({ width: 1000, height: 1000 })
 
   const updatePointerInteraction = (value: number | null, clientX?: number) => {
     pointerInteracting.current = value
@@ -149,28 +152,42 @@ export function Globe({
 
   return (
     <div
+      ref={containerRef}
+      style={{
+        width: '100%',
+        height: '100%',
+        position: 'relative',
+        cursor: 'grab',
+      }}
       className={cn(
-        "absolute inset-0 mx-auto aspect-[1/1] w-full max-w-[600px] cursor-grab active:cursor-grabbing",
-        className,
+        'touch-none',
+        className
       )}
-      onPointerDown={handlePointerDown}
+      onPointerDown={(e) => {
+        if (pointerInteracting.current !== null) return false;
+        pointerInteracting.current =
+          e.clientX - pointerInteractionMovement.current;
+        if (canvasRef.current) {
+          canvasRef.current.style.cursor = 'grabbing';
+        }
+      }}
     >
       <canvas
-        className={cn(
-          "size-full opacity-0 transition-opacity duration-500 [contain:layout_paint_size]",
-        )}
         ref={canvasRef}
-        onPointerDown={(e) =>
-          updatePointerInteraction(
-            e.clientX - pointerInteractionMovement.current,
-          )
-        }
-        onPointerUp={() => updatePointerInteraction(null)}
-        onPointerOut={() => updatePointerInteraction(null)}
-        onMouseMove={(e) => updateMovement(e.clientX)}
-        onTouchMove={(e) =>
-          e.touches[0] && updateMovement(e.touches[0].clientX)
-        }
+        onPointerDown={(e) => {
+          if (pointerInteracting.current !== null) return false;
+          pointerInteracting.current =
+            e.clientX - pointerInteractionMovement.current;
+          if (canvasRef.current) {
+            canvasRef.current.style.cursor = 'grabbing';
+          }
+        }}
+        className={cn(
+          'w-full h-full',
+          pointerInteracting.current === null ? 'cursor-grab' : 'cursor-grabbing'
+        )}
+        width={canvasSize.width}
+        height={canvasSize.height}
       />
     </div>
   )
