@@ -19,6 +19,7 @@ export function TravelGuide() {
   const [error, setError] = useState<string | null>(null)
   const [selectedRecommendation, setSelectedRecommendation] = useState<Recommendation | null>(null)
   const [showRecommendations, setShowRecommendations] = useState(false)
+  const [showMobileSearch, setShowMobileSearch] = useState(false)
 
   // Function to retry API calls with exponential backoff
   const fetchWithRetry = async (url: string, options: RequestInit, retries = 3, delay = 1000) => {
@@ -215,9 +216,12 @@ export function TravelGuide() {
               </button>
             </div>
             
-            {/* Barra de búsqueda - Oculto en móviles */}
-            <div className="hidden md:block ml-4 sm:ml-6 w-64 lg:w-96">
-              <SearchBar onSearch={handleSearch} isLoading={isLoading} />
+            {/* Barra de búsqueda - Oculto en móviles por defecto */}
+            <div className={`${showMobileSearch ? 'block absolute top-16 left-0 right-0 px-4 z-50' : 'hidden'} md:block md:static md:px-0 md:ml-4 sm:ml-6 w-full md:w-64 lg:w-96`}>
+              <SearchBar onSearch={(query) => {
+                handleSearch(query);
+                setShowMobileSearch(false);
+              }} isLoading={isLoading} />
             </div>
           </div>
           
@@ -226,8 +230,8 @@ export function TravelGuide() {
             {/* Botón de búsqueda solo en móvil */}
             <button 
               className="md:hidden text-white hover:bg-white/10 p-2 rounded-full transition-colors"
-              onClick={() => { /* Aquí puedes añadir la lógica para mostrar la barra de búsqueda en móvil */ }}
-              aria-label="Buscar"
+              onClick={() => setShowMobileSearch(!showMobileSearch)}
+              aria-label={showMobileSearch ? 'Ocultar búsqueda' : 'Mostrar búsqueda'}
             >
               <Search className="h-5 w-5" />
             </button>
