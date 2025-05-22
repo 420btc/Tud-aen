@@ -18,6 +18,7 @@ export function TravelGuide() {
   const [routeInfo, setRouteInfo] = useState<any | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [selectedRecommendation, setSelectedRecommendation] = useState<Recommendation | null>(null)
+  const [showRecommendations, setShowRecommendations] = useState(false)
 
   // Function to retry API calls with exponential backoff
   const fetchWithRetry = async (url: string, options: RequestInit, retries = 3, delay = 1000) => {
@@ -233,13 +234,51 @@ export function TravelGuide() {
           selectedRecommendation={selectedRecommendation} 
         />
 
-        {/* Recommendations overlay */}
-        {(recommendations && recommendations.length > 0) && (
-          <div className="absolute bottom-0 left-0 right-0 z-20 pb-4">
-            <h2 className="text-lg font-bold text-white mb-3 text-center">
-              Lugares recomendados en {location}
-            </h2>
+        {/* Botón flotante para mostrar recomendaciones */}
+        {recommendations && recommendations.length > 0 && !showRecommendations && (
+          <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-30">
+            <button
+              onClick={() => setShowRecommendations(true)}
+              className="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium py-2 px-4 rounded-full shadow-lg flex items-center space-x-2 transition-all duration-200"
+            >
+              <span>Mostrar recomendaciones</span>
+              <svg 
+                className="w-4 h-4 transition-transform duration-200" 
+                fill="none" 
+                stroke="currentColor" 
+                viewBox="0 0 24 24" 
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+          </div>
+        )}
+
+        {/* Panel de recomendaciones */}
+        {recommendations && recommendations.length > 0 && showRecommendations && (
+          <div className="fixed bottom-0 left-0 right-0 z-20 bg-gradient-to-t from-black to-transparent pt-4 pb-4">
             <div className="w-full px-4">
+              <div className="flex justify-between items-center mb-3 px-2">
+                <h2 className="text-lg font-bold text-white">
+                  Lugares recomendados en {location}
+                </h2>
+                <button
+                  onClick={() => setShowRecommendations(false)}
+                  className="text-blue-400 hover:text-blue-300 transition-colors"
+                  aria-label="Ocultar recomendaciones"
+                >
+                  <svg 
+                    className="w-5 h-5" 
+                    fill="none" 
+                    stroke="currentColor" 
+                    viewBox="0 0 24 24" 
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
               <RecommendationsList 
                 recommendations={recommendations}
                 onRecommendationClick={setSelectedRecommendation}
@@ -248,12 +287,11 @@ export function TravelGuide() {
             </div>
           </div>
         )}
-        {/* Route info panel flotante */}
+        
+        {/* Panel de ruta */}
         {routeInfo && routeInfo.routes && routeInfo.routes.length > 0 && (
-          <div className="fixed bottom-0 right-0 z-50 w-80 max-h-96 bg-gray-900 bg-opacity-95 rounded-tl-lg shadow-lg overflow-y-auto pointer-events-auto">
-            <div className="p-4">
-              <RouteInfo routeInfo={routeInfo} recommendations={recommendations} />
-            </div>
+          <div className="fixed bottom-4 right-4 z-30 w-80 h-80">
+            <RouteInfo routeInfo={routeInfo} recommendations={recommendations} />
           </div>
         )}
       </div>

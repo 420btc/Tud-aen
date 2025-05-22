@@ -28,7 +28,7 @@ export function RouteInfo({ routeInfo, recommendations }: RouteInfoProps) {
   const isWalkable = route.distance < 5000
 
   return (
-    <Card className="border-2 border-gray-700 bg-gradient-to-br from-gray-900 to-blue-950/80 flex-shrink-0 w-64 h-80 flex flex-col">
+    <Card className="border-2 border-gray-700 bg-gradient-to-br from-gray-900 to-blue-950/80 backdrop-blur-sm flex-shrink-0 w-full h-full flex flex-col">
       <CardHeader className="p-3 pb-1">
         <div className="flex items-center">
           <div className="flex items-center justify-center w-8 h-8 rounded-full bg-blue-600 text-white font-bold mr-3">
