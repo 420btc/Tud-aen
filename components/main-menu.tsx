@@ -13,7 +13,10 @@ export function MainMenu() {
     const newState = !isMenuOpen;
     setIsMenuOpen(newState);
     if (typeof window !== 'undefined') {
-      document.body.style.overflow = newState ? 'hidden' : 'auto';
+      // Solo deshabilitar scroll en móvil
+      if (window.innerWidth < 768) { // md breakpoint
+        document.body.style.overflow = newState ? 'hidden' : 'auto';
+      }
     }
   }
 
@@ -83,15 +86,46 @@ export function MainMenu() {
             </button>
           </div>
 
-          {/* Menú móvil */}
+          {/* Menú móvil - Versión móvil */}
           {isMenuOpen && (
-            <div className="md:hidden bg-gray-900/95 backdrop-blur-md p-4 rounded-lg mt-2 mb-4 border border-gray-800">
+            <div className="md:hidden fixed inset-0 bg-gray-900/95 backdrop-blur-md z-40 pt-16 overflow-y-auto">
+              <div className="container mx-auto px-4 py-6">
+                <nav className="flex flex-col space-y-2">
+                  {navItems.map((item) => (
+                    <Link
+                      key={item.name}
+                      href={item.href}
+                      className="font-medium text-white hover:bg-white/10 transition-colors duration-200 flex items-center p-4 rounded-lg text-lg"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      {item.icon}
+                      <span className="ml-3">{item.name}</span>
+                    </Link>
+                  ))}
+                  <div className="pt-4 border-t border-gray-800 space-y-3 mt-4">
+                    <Button variant="outline" className="w-full justify-start py-6 text-base" onClick={() => setIsMenuOpen(false)}>
+                      <LogIn className="w-5 h-5 mr-2" />
+                      Iniciar sesión
+                    </Button>
+                    <Button className="w-full justify-start py-6 text-base" onClick={() => setIsMenuOpen(false)}>
+                      <UserPlus className="w-5 h-5 mr-2" />
+                      Crear cuenta
+                    </Button>
+                  </div>
+                </nav>
+              </div>
+            </div>
+          )}
+          
+          {/* Menú móvil - Versión escritorio (igual al original) */}
+          {isMenuOpen && (
+            <div className="hidden md:block bg-gray-900/95 backdrop-blur-md p-4 rounded-lg mt-2 mb-4 border border-gray-800">
               <nav className="flex flex-col space-y-4">
                 {navItems.map((item) => (
                   <Link
                     key={item.name}
                     href={item.href}
-className="font-medium bg-gradient-to-r from-blue-400 to-white bg-clip-text text-transparent hover:from-blue-300 hover:to-gray-200 transition-colors duration-200 flex items-center p-2 rounded hover:bg-gray-800/50"
+                    className="font-medium bg-gradient-to-r from-blue-400 to-white bg-clip-text text-transparent hover:from-blue-300 hover:to-gray-200 transition-colors duration-200 flex items-center p-2 rounded hover:bg-gray-800/50"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     {item.icon}
