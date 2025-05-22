@@ -35,17 +35,14 @@ export function LoadingModal({ isOpen, logs, progress, onClose }: LoadingModalPr
     }
   }, [isOpen, onClose])
 
-  if (!isMounted) return null
-
-  if (!isVisible) return null;
+  if (!isOpen && !isMounted) return null
 
   return (
     <motion.div 
-      className="fixed bottom-0 left-0 right-0 z-50"
+      className="fixed bottom-0 left-0 right-0 z-[9999]"
       initial={{ y: '100%' }}
-      animate={{ y: 0 }}
-      exit={{ y: '100%' }}
-      transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+      animate={{ y: isOpen ? 0 : '100%' }}
+      transition={{ type: 'spring', damping: 25, stiffness: 300 }}
     >
       <motion.div 
         className="w-full bg-gray-900/95 backdrop-blur-sm border-t border-gray-700/50 rounded-t-xl overflow-hidden shadow-2xl"

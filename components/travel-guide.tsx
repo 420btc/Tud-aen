@@ -296,15 +296,17 @@ export function TravelGuide() {
 
   return (
     <div className="relative bg-black text-white">
-      {/* Loading Modal */}
-      {isGenerating && (
-        <LoadingModal 
-          isOpen={isGenerating} 
-          logs={loadingLogs} 
-          progress={loadingProgress} 
-          onClose={() => setIsGenerating(false)}
-        />
-      )}
+      {/* Loading Modal - Always render but control visibility with isOpen */}
+      <LoadingModal 
+        isOpen={isGenerating} 
+        logs={loadingLogs} 
+        progress={loadingProgress} 
+        onClose={() => {
+          setIsGenerating(false);
+          setLoadingProgress(0);
+          setLoadingLogs([]);
+        }}
+      />
       
       {/* Header transparente */}
       <header className="fixed top-0 left-0 w-full z-50 p-1 bg-black/20 backdrop-blur-sm border-b border-blue-400/20 h-16 flex items-center">
