@@ -96,11 +96,10 @@ function Hero() {
                 Explorar Ahora
               </Button>
               <Button 
-                variant="outline" 
                 size="lg" 
-                className="border-2 border-white/20 text-white hover:bg-white/10 px-8 py-6 text-lg font-semibold transition-all duration-300 transform hover:scale-105"
+                className="bg-red-600 hover:bg-red-700 text-white px-8 py-6 text-lg font-semibold transition-all duration-300 transform hover:scale-105"
               >
-                Ver ofertas
+                Registrarse
               </Button>
             </div>
             
